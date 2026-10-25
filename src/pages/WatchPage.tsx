@@ -1,0 +1,567 @@
+import React, { useEffect, useState, useCallback } from 'react';
+import {
+  Play,
+  Film,
+  Tv,
+  ArrowLeft,
+  ExternalLink,
+  ShieldCheck,
+  CheckCircle2,
+  Tv2,
+  Bookmark,
+  BookmarkCheck,
+  Star,
+  ChevronRight,
+  Clock,
+  Calendar,
+  Layers,
+  Sparkles,
+} from 'lucide-react';
+import { useApp } from '../context/AppContext';
+import { tmdbApi, getTMDBImageUrl, getBackdropFallback, getPosterFallback } from '../services/tmdbApi';
+import { TMDBMovie, TMDBTVShow, TMDBSeasonDetail, TMDBVideo } from '../types/tmdb';
+import { SUPPORTED_REGIONS } from '../data/curatedCompanies';
+import { MultiSourcePlayer } from '../components/player/MultiSourcePlayer';
+import { AVAILABLE_PLAYERS, PlayerSourceId } from '../services/videoPlayerService';
+
+interface WatchPageProps {
+  mediaType: 'movie' | 'tv';
+  mediaId: number;
+}
+
+export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
+  const {
+    navigate,
+    userRegion,
+    setUserRegion,
+    toggleWatchlist,
+    isInWatchlist,
+    addToHistory,
+    getSavedProgress,
+  } = useApp();
+
+  // Read URL query parameters for initial season and episode
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialSeason = parseInt(urlParams.get('season') || '1', 10);
+  const initialEpisode = parseInt(urlParams.get('episode') || '1', 10);
+
+  const [item, setItem] = useState<TMDBMovie | TMDBTVShow | null>(null);
+  const [season, setSeason] = useState<number>(initialSeason);
+  const [episode, setEpisode] = useState<number>(initialEpisode);
+  const [seasonDetails, setSeasonDetails] = useState<TMDBSeasonDetail | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoadingSeason, setIsLoadingSeason] = useState<boolean>(false);
+
+  // Load Movie or TV metadata
+  useEffect(() => {
+    let isCancelled = false;
+
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        const data =
+          mediaType === 'movie'
+            ? await tmdbApi.getMovieDetails(mediaId)
+            : await tmdbApi.getTVDetails(mediaId);
+
+        if (!isCancelled) {
+          setItem(data);
+
+          // If TV show, initialize season from saved history if available and not set in URL
+          const savedProgress = getSavedProgress(mediaId, 'tv');
+          if (mediaType === 'tv') {
+            const hasUrlSeason = urlParams.has('season');
+            const targetSeason = hasUrlSeason ? initialSeason : savedProgress?.season || 1;
+            const targetEpisode = hasUrlSeason ? initialEpisode : savedProgress?.episode || 1;
+            setSeason(targetSeason);
+            setEpisode(targetEpisode);
+          }
+
+          // Record in watch history
+          addToHistory({
+            id: mediaId,
+            media_type: mediaType,
+            title: (data as any).title || (data as any).name || 'Video',
+            poster_path: data.poster_path,
+            backdrop_path: data.backdrop_path,
+            vote_average: data.vote_average,
+            season: mediaType === 'tv' ? season : undefined,
+            episode: mediaType === 'tv' ? episode : undefined,
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load playback data:', err);
+      } finally {
+        if (!isCancelled) setIsLoading(false);
+      }
+    };
+
+    loadData();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [mediaType, mediaId, addToHistory]);
+
+  // Load Season Episodes when season changes on TV shows
+  useEffect(() => {
+    if (mediaType !== 'tv') return;
+
+    let isCancelled = false;
+    const fetchSeason = async () => {
+      setIsLoadingSeason(true);
+      try {
+        const details = await tmdbApi.getTVSeason(mediaId, season);
+        if (!isCancelled) {
+          setSeasonDetails(details);
+        }
+      } catch (err) {
+        console.warn('Could not load season episodes:', err);
+      } finally {
+        if (!isCancelled) setIsLoadingSeason(false);
+      }
+    };
+
+    fetchSeason();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [mediaType, mediaId, season]);
+
+  // Update URL query parameters on season/episode change without reloading page
+  const handleEpisodeChange = useCallback(
+    (newEpisode: number) => {
+      setEpisode(newEpisode);
+      const url = new URL(window.location.href);
+      url.searchParams.set('season', String(season));
+      url.searchParams.set('episode', String(newEpisode));
+      window.history.replaceState({}, '', url.pathname + url.search);
+    },
+    [season]
+  );
+
+  const handleSeasonChange = useCallback((newSeason: number) => {
+    setSeason(newSeason);
+    setEpisode(1);
+    const url = new URL(window.location.href);
+    url.searchParams.set('season', String(newSeason));
+    url.searchParams.set('episode', '1');
+    window.history.replaceState({}, '', url.pathname + url.search);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[70vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-red-600 border-t-transparent" />
+          <span className="text-xs text-neutral-400">Initializing streaming sources...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!item) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center p-6 text-center">
+        <Film className="h-12 w-12 text-neutral-600 mb-2" />
+        <h2 className="text-xl font-bold text-white">Title Not Found</h2>
+        <p className="mt-1 text-xs text-neutral-400">
+          Unable to locate TMDB metadata for ID #{mediaId}.
+        </p>
+        <button
+          onClick={() => navigate('/')}
+          className="mt-4 flex items-center gap-2 rounded-xl bg-neutral-800 px-4 py-2 text-xs font-semibold text-white hover:bg-neutral-700"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Return Home</span>
+        </button>
+      </div>
+    );
+  }
+
+  const title = (item as any).title || (item as any).name || 'Title';
+  const year = ((item as any).release_date || (item as any).first_air_date || '').slice(0, 4);
+  const inWatchlist = isInWatchlist(item.id, mediaType);
+  const watchProviders =
+    item['watch/providers']?.results?.[userRegion] || item['watch/providers']?.results?.['US'];
+  const officialTrailer =
+    item.videos?.results?.find((v) => v.site === 'YouTube' && v.type === 'Trailer') ||
+    item.videos?.results?.find((v) => v.site === 'YouTube' && v.type === 'Teaser');
+
+  const tvShow = mediaType === 'tv' ? (item as TMDBTVShow) : null;
+  const currentEpisodeObj = seasonDetails?.episodes?.find((ep) => ep.episode_number === episode);
+  const totalEpisodesInSeason = seasonDetails?.episodes?.length || 24;
+
+  const savedProgress = getSavedProgress(mediaId, mediaType);
+
+  return (
+    <div className="mx-auto max-w-7xl px-3 py-6 sm:px-6 md:px-8 pb-24">
+      {/* Top back navigation */}
+      <div className="mb-4 flex items-center justify-between">
+        <button
+          onClick={() => navigate(`/${mediaType}/${mediaId}`)}
+          className="flex items-center gap-1.5 text-xs font-semibold text-neutral-400 hover:text-white transition"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to {title} Overview</span>
+        </button>
+
+        <div className="flex items-center gap-2 text-xs text-neutral-400">
+          <span className="uppercase text-red-500 font-bold">{mediaType === 'tv' ? 'Series' : 'Movie'}</span>
+          {year && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>{year}</span>
+            </>
+          )}
+          {item.vote_average > 0 && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span className="flex items-center gap-1 text-amber-400 font-medium">
+                <Star className="h-3 w-3 fill-amber-400" />
+                {item.vote_average.toFixed(1)}
+              </span>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Main Multi-Source Video Player */}
+      <MultiSourcePlayer
+        mediaType={mediaType}
+        tmdbId={mediaId}
+        imdbId={(item as any).imdb_id}
+        title={title}
+        season={season}
+        episode={episode}
+        totalEpisodesInSeason={totalEpisodesInSeason}
+        onSeasonChange={handleSeasonChange}
+        onEpisodeChange={handleEpisodeChange}
+        officialTrailer={officialTrailer}
+      />
+
+      {/* Title & Metadata Sub-Header */}
+      <div className="mt-6 flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-neutral-800 pb-6">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white font-['Oswald',sans-serif]">
+            {title}
+          </h1>
+
+          {/* If TV Show, show episode title */}
+          {mediaType === 'tv' && (
+            <div className="mt-1 flex items-center gap-2 text-sm text-neutral-300">
+              <span className="font-semibold text-red-400">
+                Season {season}, Episode {episode}
+              </span>
+              {currentEpisodeObj?.name && (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span className="italic">{currentEpisodeObj.name}</span>
+                </>
+              )}
+            </div>
+          )}
+
+          <p className="mt-2 text-xs sm:text-sm text-neutral-400 max-w-3xl leading-relaxed">
+            {mediaType === 'tv' && currentEpisodeObj?.overview
+              ? currentEpisodeObj.overview
+              : item.overview}
+          </p>
+        </div>
+
+        {/* Watchlist toggle & quick actions */}
+        <div className="flex items-center gap-2.5 shrink-0">
+          <button
+            onClick={() =>
+              toggleWatchlist({
+                id: item.id,
+                media_type: mediaType,
+                title,
+                poster_path: item.poster_path,
+                backdrop_path: item.backdrop_path,
+                vote_average: item.vote_average,
+                release_year: year,
+              })
+            }
+            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold border transition ${
+              inWatchlist
+                ? 'bg-red-950/60 text-red-300 border-red-800/60'
+                : 'bg-neutral-900 text-white border-neutral-800 hover:bg-neutral-800'
+            }`}
+          >
+            {inWatchlist ? <BookmarkCheck className="h-4 w-4 text-red-400" /> : <Bookmark className="h-4 w-4" />}
+            <span>{inWatchlist ? 'In Watchlist' : 'Add to Watchlist'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* TV Season & Episode Selector List */}
+      {mediaType === 'tv' && tvShow && (
+        <section className="mt-8 rounded-2xl border border-neutral-800 bg-[#141414] p-5 shadow-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-800 pb-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <Layers className="h-4 w-4 text-emerald-400" />
+                <h2 className="text-base font-bold text-white font-['Oswald',sans-serif]">
+                  EPISODE SELECTOR
+                </h2>
+              </div>
+              <p className="text-xs text-neutral-400">
+                Switch season or episode to dynamically load the video stream.
+              </p>
+            </div>
+
+            {/* Season Selector Tabs */}
+            {tvShow.seasons && tvShow.seasons.length > 0 && (
+              <div className="flex items-center gap-1.5 overflow-x-auto p-1 bg-neutral-900 rounded-xl border border-neutral-800">
+                {tvShow.seasons
+                  .filter((s) => s.season_number > 0)
+                  .map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => handleSeasonChange(s.season_number)}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition ${
+                        season === s.season_number
+                          ? 'bg-neutral-800 text-white shadow-sm'
+                          : 'text-neutral-400 hover:text-white'
+                      }`}
+                    >
+                      {s.name || `Season ${s.season_number}`}
+                    </button>
+                  ))}
+              </div>
+            )}
+          </div>
+
+          {/* Episode Cards Grid */}
+          <div className="mt-5">
+            {isLoadingSeason ? (
+              <div className="py-12 text-center text-xs text-neutral-400">
+                Loading Season {season} episodes...
+              </div>
+            ) : seasonDetails?.episodes && seasonDetails.episodes.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {seasonDetails.episodes.map((ep) => {
+                  const isCurrent = ep.episode_number === episode;
+                  return (
+                    <button
+                      key={ep.id || ep.episode_number}
+                      onClick={() => handleEpisodeChange(ep.episode_number)}
+                      className={`group flex flex-col text-left rounded-xl border overflow-hidden p-3 transition ${
+                        isCurrent
+                          ? 'border-red-600 bg-red-950/20 shadow-lg ring-1 ring-red-600'
+                          : 'border-neutral-800 bg-neutral-900/60 hover:border-neutral-700 hover:bg-neutral-800/60'
+                      }`}
+                    >
+                      {/* Thumbnail Still */}
+                      <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-neutral-950 border border-neutral-800/80 mb-2.5">
+                        <img
+                          src={
+                            ep.still_path
+                              ? getTMDBImageUrl(ep.still_path, 'w300')
+                              : getBackdropFallback()
+                          }
+                          alt={ep.name}
+                          className="h-full w-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                        <div className="absolute bottom-1.5 left-1.5 rounded bg-black/80 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                          EP {ep.episode_number}
+                        </div>
+                        {isCurrent && (
+                          <div className="absolute top-1.5 right-1.5 rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider">
+                            Now Playing
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Episode Title & Info */}
+                      <div className="text-xs font-semibold text-white group-hover:text-red-400 transition truncate w-full">
+                        {ep.episode_number}. {ep.name}
+                      </div>
+
+                      <div className="flex items-center gap-2 text-[11px] text-neutral-400 mt-1">
+                        {ep.runtime && <span>{ep.runtime} min</span>}
+                        {ep.runtime && ep.air_date && <span aria-hidden="true">·</span>}
+                        {ep.air_date && <span>{ep.air_date}</span>}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="py-8 text-center text-xs text-neutral-400">
+                Episode list not available for this season.
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Streaming Sources Architecture Explanation */}
+      <section className="mt-8 rounded-2xl border border-neutral-800 bg-[#141414] p-5 shadow-lg">
+        <div className="flex items-center gap-2 pb-3 border-b border-neutral-800">
+          <Sparkles className="h-4 w-4 text-red-500" />
+          <h2 className="text-sm font-bold uppercase tracking-wider text-white font-['Oswald',sans-serif]">
+            SUPPORTED VIDEO SOURCES
+          </h2>
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+          {AVAILABLE_PLAYERS.map((player) => (
+            <div
+              key={player.id}
+              className="rounded-xl border border-neutral-800/80 bg-neutral-900/50 p-4"
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-bold text-white">{player.serverLabel}</span>
+                <span className="font-mono text-[10px] text-neutral-500">{player.baseUrl}</span>
+              </div>
+              <p className="text-xs text-neutral-400 leading-relaxed">{player.description}</p>
+              <div className="mt-3 flex items-center gap-2 text-[11px] text-neutral-400">
+                <span>Color: #{player.defaultColor}</span>
+                <span aria-hidden="true">·</span>
+                <span>{player.supportsProgressTracking ? 'Progress Sync: Yes' : 'Direct Embed'}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Official Legal Streaming Providers via JustWatch & TMDB */}
+      <section className="mt-8 rounded-2xl border border-neutral-800 bg-[#141414] p-5 shadow-lg">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-neutral-800 pb-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-emerald-400" />
+              <h2 className="text-base font-bold text-white font-['Oswald',sans-serif]">
+                OFFICIAL LICENSED PROVIDERS (JUSTWATCH / TMDB)
+              </h2>
+            </div>
+            <p className="text-xs text-neutral-400">
+              Verified local options to watch {title} legally in your country.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-neutral-400">Country:</span>
+            <select
+              value={userRegion}
+              onChange={(e) => setUserRegion(e.target.value)}
+              className="rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-xs text-neutral-200 focus:outline-none"
+            >
+              {SUPPORTED_REGIONS.map((r) => (
+                <option key={r.code} value={r.code}>
+                  {r.flag} {r.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Subscription Streaming */}
+          <div>
+            <div className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">
+              Stream (Subscription)
+            </div>
+            {watchProviders?.flatrate && watchProviders.flatrate.length > 0 ? (
+              <div className="space-y-2">
+                {watchProviders.flatrate.map((prov) => (
+                  <div
+                    key={prov.provider_id}
+                    className="flex items-center gap-3 rounded-xl bg-neutral-900 border border-neutral-800 p-2.5"
+                  >
+                    <img
+                      src={getTMDBImageUrl(prov.logo_path, 'w92')}
+                      alt={prov.provider_name}
+                      className="h-7 w-7 rounded-lg object-cover"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-white truncate">{prov.provider_name}</div>
+                      <div className="text-[10px] text-emerald-400">Available in plan</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-xs text-neutral-500 py-2">Not in local subscription services.</div>
+            )}
+          </div>
+
+          {/* Digital Rent */}
+          <div>
+            <div className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">
+              Rent Online
+            </div>
+            {watchProviders?.rent && watchProviders.rent.length > 0 ? (
+              <div className="space-y-2">
+                {watchProviders.rent.map((prov) => (
+                  <div
+                    key={prov.provider_id}
+                    className="flex items-center gap-3 rounded-xl bg-neutral-900 border border-neutral-800 p-2.5"
+                  >
+                    <img
+                      src={getTMDBImageUrl(prov.logo_path, 'w92')}
+                      alt={prov.provider_name}
+                      className="h-7 w-7 rounded-lg object-cover"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-white truncate">{prov.provider_name}</div>
+                      <div className="text-[10px] text-neutral-400">On-demand rental</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-xs text-neutral-500 py-2">No digital rental services listed.</div>
+            )}
+          </div>
+
+          {/* Digital Buy */}
+          <div>
+            <div className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">
+              Buy Digital
+            </div>
+            {watchProviders?.buy && watchProviders.buy.length > 0 ? (
+              <div className="space-y-2">
+                {watchProviders.buy.map((prov) => (
+                  <div
+                    key={prov.provider_id}
+                    className="flex items-center gap-3 rounded-xl bg-neutral-900 border border-neutral-800 p-2.5"
+                  >
+                    <img
+                      src={getTMDBImageUrl(prov.logo_path, 'w92')}
+                      alt={prov.provider_name}
+                      className="h-7 w-7 rounded-lg object-cover"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-white truncate">{prov.provider_name}</div>
+                      <div className="text-[10px] text-neutral-400">Digital purchase</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-xs text-neutral-500 py-2">No digital buy options listed.</div>
+            )}
+          </div>
+        </div>
+
+        {watchProviders?.link && (
+          <div className="mt-5 border-t border-neutral-800 pt-3 text-right">
+            <a
+              href={watchProviders.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs text-red-400 hover:text-red-300 font-semibold"
+            >
+              <span>View complete JustWatch listing on TMDB</span>
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
+        )}
+      </section>
+    </div>
+  );
+};

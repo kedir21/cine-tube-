@@ -1,0 +1,6 @@
+{
+  "name": "CineTube - Movie & TV Discovery",
+  "description": "A YouTube-inspired movie and TV show discovery platform powered by TMDB, featuring production studio catalogs, trailers, cast details, watch providers, and watchlist management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

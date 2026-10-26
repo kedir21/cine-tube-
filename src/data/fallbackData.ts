@@ -821,6 +821,7 @@ export const FALLBACK_STUDIO_MOVIES: Record<number, TMDBMovie[]> = {
 
 export const FALLBACK_EPISODES = [
   {
+    id: 4001,
     episode_number: 1,
     season_number: 1,
     name: 'When You\'re Lost in the Darkness',
@@ -832,6 +833,7 @@ export const FALLBACK_EPISODES = [
     vote_count: 850,
   },
   {
+    id: 4002,
     episode_number: 2,
     season_number: 1,
     name: 'Infected',
@@ -843,6 +845,7 @@ export const FALLBACK_EPISODES = [
     vote_count: 720,
   },
   {
+    id: 4003,
     episode_number: 3,
     season_number: 1,
     name: 'Long, Long Time',
@@ -854,6 +857,7 @@ export const FALLBACK_EPISODES = [
     vote_count: 1400,
   },
   {
+    id: 4004,
     episode_number: 4,
     season_number: 1,
     name: 'Please Hold to My Hand',

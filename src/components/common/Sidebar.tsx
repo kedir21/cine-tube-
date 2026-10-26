@@ -41,13 +41,13 @@ export const Sidebar: React.FC = () => {
   };
 
   const content = (
-    <div className="flex h-full flex-col overflow-y-auto px-2 py-3 text-neutral-300 scrollbar-thin scrollbar-thumb-neutral-800">
+    <div className="flex h-full flex-col overflow-y-auto px-2 py-3 text-zinc-300 scrollbar-thin scrollbar-thumb-zinc-800">
       {/* Mobile Close Button */}
       <div className="flex items-center justify-between pb-2 px-2 md:hidden">
-        <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">Navigation</span>
+        <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">Navigation</span>
         <button
           onClick={closeMobileSidebar}
-          className="rounded-full p-1 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+          className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-800 hover:text-white"
           aria-label="Close menu"
         >
           <X className="h-5 w-5" />
@@ -58,10 +58,10 @@ export const Sidebar: React.FC = () => {
       <div className="space-y-0.5 pb-3">
         <button
           onClick={() => handleNav('/')}
-          className={`flex w-full items-center gap-4 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+          className={`flex w-full items-center gap-3.5 rounded-lg px-3 py-2 text-xs font-medium transition ${
             isActive('/') && !currentPath.includes('?')
-              ? 'bg-neutral-800 text-white font-semibold'
-              : 'hover:bg-neutral-800/70 hover:text-white text-neutral-300'
+              ? 'bg-zinc-800/80 text-white font-semibold'
+              : 'hover:bg-zinc-800/40 hover:text-white text-zinc-400'
           }`}
         >
           <Home className="h-4 w-4 text-red-500" />
@@ -309,7 +309,7 @@ export const Sidebar: React.FC = () => {
     <>
       {/* Desktop Sidebar (Collapsible: 240px or 72px) */}
       <aside
-        className={`hidden md:flex flex-col shrink-0 border-r border-neutral-800/80 bg-[#0f0f0f] transition-all duration-300 ease-in-out ${
+        className={`hidden md:flex flex-col shrink-0 border-r border-zinc-800/80 bg-[#09090b] transition-all duration-300 ease-in-out ${
           isSidebarExpanded ? 'w-60' : 'w-[72px]'
         }`}
       >
@@ -317,10 +317,10 @@ export const Sidebar: React.FC = () => {
           content
         ) : (
           /* Mini compact bar when collapsed (YouTube style) */
-          <div className="flex flex-col items-center gap-4 py-4 text-neutral-400">
+          <div className="flex flex-col items-center gap-4 py-4 text-zinc-400">
             <button
               onClick={() => handleNav('/')}
-              className={`flex flex-col items-center gap-1 rounded-xl p-2.5 transition hover:text-white ${
+              className={`flex flex-col items-center gap-1 rounded-lg p-2 transition hover:text-white ${
                 isActive('/') ? 'text-red-500 font-semibold' : ''
               }`}
               title="Home"
@@ -331,7 +331,7 @@ export const Sidebar: React.FC = () => {
 
             <button
               onClick={() => handleNav('/trending')}
-              className={`flex flex-col items-center gap-1 rounded-xl p-2.5 transition hover:text-white ${
+              className={`flex flex-col items-center gap-1 rounded-lg p-2 transition hover:text-white ${
                 isActive('/trending') ? 'text-amber-500 font-semibold' : ''
               }`}
               title="Trending"
@@ -342,7 +342,7 @@ export const Sidebar: React.FC = () => {
 
             <button
               onClick={() => handleNav('/movies')}
-              className={`flex flex-col items-center gap-1 rounded-xl p-2.5 transition hover:text-white ${
+              className={`flex flex-col items-center gap-1 rounded-lg p-2 transition hover:text-white ${
                 isActive('/movies') ? 'text-blue-400 font-semibold' : ''
               }`}
               title="Movies"
@@ -353,7 +353,7 @@ export const Sidebar: React.FC = () => {
 
             <button
               onClick={() => handleNav('/tv-shows')}
-              className={`flex flex-col items-center gap-1 rounded-xl p-2.5 transition hover:text-white ${
+              className={`flex flex-col items-center gap-1 rounded-lg p-2 transition hover:text-white ${
                 isActive('/tv-shows') ? 'text-emerald-400 font-semibold' : ''
               }`}
               title="TV Shows"
@@ -364,7 +364,7 @@ export const Sidebar: React.FC = () => {
 
             <button
               onClick={() => handleNav('/companies')}
-              className={`flex flex-col items-center gap-1 rounded-xl p-2.5 transition hover:text-white ${
+              className={`flex flex-col items-center gap-1 rounded-lg p-2 transition hover:text-white ${
                 isActive('/companies') ? 'text-white font-semibold' : ''
               }`}
               title="Studios"
@@ -375,7 +375,7 @@ export const Sidebar: React.FC = () => {
 
             <button
               onClick={() => handleNav('/watchlist')}
-              className={`flex flex-col items-center gap-1 rounded-xl p-2.5 transition hover:text-white ${
+              className={`flex flex-col items-center gap-1 rounded-lg p-2 transition hover:text-white ${
                 isActive('/watchlist') ? 'text-red-500 font-semibold' : ''
               }`}
               title="Watchlist"
@@ -394,7 +394,7 @@ export const Sidebar: React.FC = () => {
             className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
             onClick={closeMobileSidebar}
           />
-          <aside className="fixed inset-y-0 left-0 z-50 w-72 bg-[#0f0f0f] shadow-2xl border-r border-neutral-800">
+          <aside className="fixed inset-y-0 left-0 z-50 w-72 bg-[#09090b] shadow-2xl border-r border-zinc-800/80">
             {content}
           </aside>
         </div>

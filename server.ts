@@ -10,6 +10,8 @@ import {
 } from './src/data/fallbackData';
 import { CURATED_COMPANIES, CURATED_NETWORKS } from './src/data/curatedCompanies';
 
+import { TMDB_CONFIG, getTmdbHeaders } from './src/config/tmdb';
+
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -24,17 +26,13 @@ const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
 let serverWatchlist: any[] = [];
 let serverWatchHistory: any[] = [];
 
-function getActiveTmdbToken(): { token: string; type: 'bearer' | 'api_key' | null; source: 'env' | 'session' | 'none' } {
-  // Check v4 access token from env
-  const envV4 = process.env.TMDB_API_READ_ACCESS_TOKEN || process.env.TMDB_READ_ACCESS_TOKEN;
-  if (envV4 && envV4.trim() && envV4 !== 'MY_TMDB_API_READ_ACCESS_TOKEN') {
-    return { token: envV4.trim(), type: 'bearer', source: 'env' };
+function getActiveTmdbToken(): { token: string; type: 'bearer' | 'api_key' | null; source: 'config' | 'env' | 'session' | 'none' } {
+  // Check centralized config first (guarantees live TMDB without any .env)
+  if (TMDB_CONFIG.readAccessToken && TMDB_CONFIG.readAccessToken.trim()) {
+    return { token: TMDB_CONFIG.readAccessToken.trim(), type: 'bearer', source: 'config' };
   }
-
-  // Check v3 api key from env
-  const envV3 = process.env.TMDB_API_KEY || process.env.TMDB_KEY;
-  if (envV3 && envV3.trim() && envV3 !== 'MY_TMDB_API_KEY') {
-    return { token: envV3.trim(), type: 'api_key', source: 'env' };
+  if (TMDB_CONFIG.apiKey && TMDB_CONFIG.apiKey.trim()) {
+    return { token: TMDB_CONFIG.apiKey.trim(), type: 'api_key', source: 'config' };
   }
 
   // Check session token
@@ -45,6 +43,17 @@ function getActiveTmdbToken(): { token: string; type: 'bearer' | 'api_key' | nul
       type: isV4 ? 'bearer' : 'api_key',
       source: 'session',
     };
+  }
+
+  // Check env as secondary fallback
+  const envV4 = process.env.TMDB_API_READ_ACCESS_TOKEN || process.env.TMDB_READ_ACCESS_TOKEN;
+  if (envV4 && envV4.trim() && envV4 !== 'MY_TMDB_API_READ_ACCESS_TOKEN') {
+    return { token: envV4.trim(), type: 'bearer', source: 'env' };
+  }
+
+  const envV3 = process.env.TMDB_API_KEY || process.env.TMDB_KEY;
+  if (envV3 && envV3.trim() && envV3 !== 'MY_TMDB_API_KEY') {
+    return { token: envV3.trim(), type: 'api_key', source: 'env' };
   }
 
   return { token: '', type: null, source: 'none' };

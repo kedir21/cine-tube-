@@ -298,33 +298,33 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
 
       {/* TV Season & Episode Selector List */}
       {mediaType === 'tv' && tvShow && (
-        <section className="mt-8 rounded-2xl border border-neutral-800 bg-[#141414] p-5 shadow-lg">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-800 pb-4">
+        <section className="mt-8 rounded-xl border border-zinc-800/80 bg-[#121215] p-5 shadow-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/80 pb-4">
             <div>
               <div className="flex items-center gap-2">
                 <Layers className="h-4 w-4 text-emerald-400" />
-                <h2 className="text-base font-bold text-white font-['Oswald',sans-serif]">
-                  EPISODE SELECTOR
+                <h2 className="text-sm font-bold uppercase tracking-wider text-white">
+                  Episode Selector
                 </h2>
               </div>
-              <p className="text-xs text-neutral-400">
+              <p className="text-xs text-zinc-400">
                 Switch season or episode to dynamically load the video stream.
               </p>
             </div>
 
             {/* Season Selector Tabs */}
             {tvShow.seasons && tvShow.seasons.length > 0 && (
-              <div className="flex items-center gap-1.5 overflow-x-auto p-1 bg-neutral-900 rounded-xl border border-neutral-800">
+              <div className="flex items-center gap-1.5 overflow-x-auto p-1 bg-zinc-900/80 rounded-lg border border-zinc-800">
                 {tvShow.seasons
                   .filter((s) => s.season_number > 0)
                   .map((s) => (
                     <button
                       key={s.id}
                       onClick={() => handleSeasonChange(s.season_number)}
-                      className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition ${
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-md whitespace-nowrap transition ${
                         season === s.season_number
-                          ? 'bg-neutral-800 text-white shadow-sm'
-                          : 'text-neutral-400 hover:text-white'
+                          ? 'bg-zinc-800 text-white shadow-sm'
+                          : 'text-zinc-400 hover:text-white'
                       }`}
                     >
                       {s.name || `Season ${s.season_number}`}
@@ -337,7 +337,7 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
           {/* Episode Cards Grid */}
           <div className="mt-5">
             {isLoadingSeason ? (
-              <div className="py-12 text-center text-xs text-neutral-400">
+              <div className="py-12 text-center text-xs text-zinc-400">
                 Loading Season {season} episodes...
               </div>
             ) : seasonDetails?.episodes && seasonDetails.episodes.length > 0 ? (
@@ -348,14 +348,14 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
                     <button
                       key={ep.id || ep.episode_number}
                       onClick={() => handleEpisodeChange(ep.episode_number)}
-                      className={`group flex flex-col text-left rounded-xl border overflow-hidden p-3 transition ${
+                      className={`group flex flex-col text-left rounded-lg border overflow-hidden p-3 transition ${
                         isCurrent
-                          ? 'border-red-600 bg-red-950/20 shadow-lg ring-1 ring-red-600'
-                          : 'border-neutral-800 bg-neutral-900/60 hover:border-neutral-700 hover:bg-neutral-800/60'
+                          ? 'border-red-600 bg-red-950/20 shadow-md ring-1 ring-red-600'
+                          : 'border-zinc-800/80 bg-zinc-900/50 hover:border-zinc-700 hover:bg-zinc-800/50'
                       }`}
                     >
                       {/* Thumbnail Still */}
-                      <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-neutral-950 border border-neutral-800/80 mb-2.5">
+                      <div className="relative aspect-video w-full rounded-md overflow-hidden bg-zinc-950 border border-zinc-800/80 mb-2.5">
                         <img
                           src={
                             ep.still_path
@@ -376,11 +376,11 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
                       </div>
 
                       {/* Episode Title & Info */}
-                      <div className="text-xs font-semibold text-white group-hover:text-red-400 transition truncate w-full">
+                      <div className="text-xs font-semibold text-zinc-100 group-hover:text-red-400 transition truncate w-full">
                         {ep.episode_number}. {ep.name}
                       </div>
 
-                      <div className="flex items-center gap-2 text-[11px] text-neutral-400 mt-1">
+                      <div className="flex items-center gap-2 text-[11px] text-zinc-400 mt-1">
                         {ep.runtime && <span>{ep.runtime} min</span>}
                         {ep.runtime && ep.air_date && <span aria-hidden="true">·</span>}
                         {ep.air_date && <span>{ep.air_date}</span>}
@@ -390,7 +390,7 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
                 })}
               </div>
             ) : (
-              <div className="py-8 text-center text-xs text-neutral-400">
+              <div className="py-8 text-center text-xs text-zinc-400">
                 Episode list not available for this season.
               </div>
             )}
@@ -399,11 +399,11 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
       )}
 
       {/* Streaming Sources Architecture Explanation */}
-      <section className="mt-8 rounded-2xl border border-neutral-800 bg-[#141414] p-5 shadow-lg">
-        <div className="flex items-center gap-2 pb-3 border-b border-neutral-800">
+      <section className="mt-8 rounded-xl border border-zinc-800/80 bg-[#121215] p-5 shadow-lg">
+        <div className="flex items-center gap-2 pb-3 border-b border-zinc-800/80">
           <Sparkles className="h-4 w-4 text-red-500" />
-          <h2 className="text-sm font-bold uppercase tracking-wider text-white font-['Oswald',sans-serif]">
-            SUPPORTED VIDEO SOURCES
+          <h2 className="text-xs font-bold uppercase tracking-wider text-white">
+            Supported Video Sources
           </h2>
         </div>
 
@@ -411,14 +411,14 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
           {AVAILABLE_PLAYERS.map((player) => (
             <div
               key={player.id}
-              className="rounded-xl border border-neutral-800/80 bg-neutral-900/50 p-4"
+              className="rounded-lg border border-zinc-800/80 bg-zinc-900/40 p-4"
             >
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-bold text-white">{player.serverLabel}</span>
-                <span className="font-mono text-[10px] text-neutral-500">{player.baseUrl}</span>
+                <span className="font-mono text-[10px] text-zinc-500">{player.baseUrl}</span>
               </div>
-              <p className="text-xs text-neutral-400 leading-relaxed">{player.description}</p>
-              <div className="mt-3 flex items-center gap-2 text-[11px] text-neutral-400">
+              <p className="text-xs text-zinc-400 leading-relaxed">{player.description}</p>
+              <div className="mt-3 flex items-center gap-2 text-[11px] text-zinc-500">
                 <span>Color: #{player.defaultColor}</span>
                 <span aria-hidden="true">·</span>
                 <span>{player.supportsProgressTracking ? 'Progress Sync: Yes' : 'Direct Embed'}</span>
@@ -429,26 +429,26 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
       </section>
 
       {/* Official Legal Streaming Providers via JustWatch & TMDB */}
-      <section className="mt-8 rounded-2xl border border-neutral-800 bg-[#141414] p-5 shadow-lg">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-neutral-800 pb-4">
+      <section className="mt-8 rounded-xl border border-zinc-800/80 bg-[#121215] p-5 shadow-lg">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800/80 pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-emerald-400" />
-              <h2 className="text-base font-bold text-white font-['Oswald',sans-serif]">
-                OFFICIAL LICENSED PROVIDERS (JUSTWATCH / TMDB)
+              <ShieldCheck className="h-4 w-4 text-emerald-400" />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-white">
+                Official Licensed Providers (TMDB)
               </h2>
             </div>
-            <p className="text-xs text-neutral-400">
+            <p className="text-xs text-zinc-400">
               Verified local options to watch {title} legally in your country.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-neutral-400">Country:</span>
+            <span className="text-xs text-zinc-400">Country:</span>
             <select
               value={userRegion}
               onChange={(e) => setUserRegion(e.target.value)}
-              className="rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-xs text-neutral-200 focus:outline-none"
+              className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-200 focus:outline-none"
             >
               {SUPPORTED_REGIONS.map((r) => (
                 <option key={r.code} value={r.code}>
@@ -462,7 +462,7 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
         <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Subscription Streaming */}
           <div>
-            <div className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-2">
               Stream (Subscription)
             </div>
             {watchProviders?.flatrate && watchProviders.flatrate.length > 0 ? (
@@ -470,28 +470,28 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
                 {watchProviders.flatrate.map((prov) => (
                   <div
                     key={prov.provider_id}
-                    className="flex items-center gap-3 rounded-xl bg-neutral-900 border border-neutral-800 p-2.5"
+                    className="flex items-center gap-3 rounded-lg bg-zinc-900/60 border border-zinc-800/80 p-2.5"
                   >
                     <img
                       src={getTMDBImageUrl(prov.logo_path, 'w92')}
                       alt={prov.provider_name}
-                      className="h-7 w-7 rounded-lg object-cover"
+                      className="h-7 w-7 rounded-md object-cover"
                     />
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs font-semibold text-white truncate">{prov.provider_name}</div>
+                      <div className="text-xs font-medium text-zinc-200 truncate">{prov.provider_name}</div>
                       <div className="text-[10px] text-emerald-400">Available in plan</div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-xs text-neutral-500 py-2">Not in local subscription services.</div>
+              <div className="text-xs text-zinc-500 py-2">Not in local subscription services.</div>
             )}
           </div>
 
           {/* Digital Rent */}
           <div>
-            <div className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-2">
               Rent Online
             </div>
             {watchProviders?.rent && watchProviders.rent.length > 0 ? (
@@ -499,28 +499,28 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
                 {watchProviders.rent.map((prov) => (
                   <div
                     key={prov.provider_id}
-                    className="flex items-center gap-3 rounded-xl bg-neutral-900 border border-neutral-800 p-2.5"
+                    className="flex items-center gap-3 rounded-lg bg-zinc-900/60 border border-zinc-800/80 p-2.5"
                   >
                     <img
                       src={getTMDBImageUrl(prov.logo_path, 'w92')}
                       alt={prov.provider_name}
-                      className="h-7 w-7 rounded-lg object-cover"
+                      className="h-7 w-7 rounded-md object-cover"
                     />
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs font-semibold text-white truncate">{prov.provider_name}</div>
-                      <div className="text-[10px] text-neutral-400">On-demand rental</div>
+                      <div className="text-xs font-medium text-zinc-200 truncate">{prov.provider_name}</div>
+                      <div className="text-[10px] text-zinc-500">On-demand rental</div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-xs text-neutral-500 py-2">No digital rental services listed.</div>
+              <div className="text-xs text-zinc-500 py-2">No digital rental services listed.</div>
             )}
           </div>
 
           {/* Digital Buy */}
           <div>
-            <div className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-2">
               Buy Digital
             </div>
             {watchProviders?.buy && watchProviders.buy.length > 0 ? (
@@ -528,33 +528,33 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
                 {watchProviders.buy.map((prov) => (
                   <div
                     key={prov.provider_id}
-                    className="flex items-center gap-3 rounded-xl bg-neutral-900 border border-neutral-800 p-2.5"
+                    className="flex items-center gap-3 rounded-lg bg-zinc-900/60 border border-zinc-800/80 p-2.5"
                   >
                     <img
                       src={getTMDBImageUrl(prov.logo_path, 'w92')}
                       alt={prov.provider_name}
-                      className="h-7 w-7 rounded-lg object-cover"
+                      className="h-7 w-7 rounded-md object-cover"
                     />
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs font-semibold text-white truncate">{prov.provider_name}</div>
-                      <div className="text-[10px] text-neutral-400">Digital purchase</div>
+                      <div className="text-xs font-medium text-zinc-200 truncate">{prov.provider_name}</div>
+                      <div className="text-[10px] text-zinc-500">Digital purchase</div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-xs text-neutral-500 py-2">No digital buy options listed.</div>
+              <div className="text-xs text-zinc-500 py-2">No digital buy options listed.</div>
             )}
           </div>
         </div>
 
         {watchProviders?.link && (
-          <div className="mt-5 border-t border-neutral-800 pt-3 text-right">
+          <div className="mt-5 border-t border-zinc-800/80 pt-3 text-right">
             <a
               href={watchProviders.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-red-400 hover:text-red-300 font-semibold"
+              className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white"
             >
               <span>View complete JustWatch listing on TMDB</span>
               <ExternalLink className="h-3 w-3" />

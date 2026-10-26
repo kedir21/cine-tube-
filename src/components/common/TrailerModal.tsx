@@ -30,14 +30,14 @@ export const TrailerModal: React.FC = () => {
       />
 
       {/* Modal Dialog */}
-      <div className="relative z-10 w-full max-w-4xl overflow-hidden rounded-2xl border border-neutral-800 bg-[#121212] shadow-2xl flex flex-col">
+      <div className="relative z-10 w-full max-w-4xl overflow-hidden rounded-xl border border-zinc-800 bg-[#121215] shadow-2xl flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3 bg-[#181818]">
+        <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3 bg-[#121215]">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white shrink-0">
+            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-red-600 text-white shrink-0">
               {activeTrailer.mediaType === 'tv' ? <Tv className="h-3.5 w-3.5" /> : <Film className="h-3.5 w-3.5" />}
             </span>
-            <span className="truncate text-sm font-bold text-white font-['Oswald',sans-serif]">
+            <span className="truncate text-xs font-bold uppercase tracking-wider text-white">
               {activeTrailer.title} — Official Trailer
             </span>
           </div>
@@ -49,7 +49,7 @@ export const TrailerModal: React.FC = () => {
                   closeTrailer();
                   navigate(`/${activeTrailer.mediaType}/${activeTrailer.mediaId}`);
                 }}
-                className="hidden sm:flex items-center gap-1 text-xs text-neutral-400 hover:text-white px-2 py-1 rounded hover:bg-neutral-800"
+                className="hidden sm:flex items-center gap-1 text-xs text-zinc-400 hover:text-white px-2 py-1 rounded hover:bg-zinc-800 transition"
               >
                 <span>Full Details</span>
                 <ExternalLink className="h-3 w-3" />
@@ -58,7 +58,7 @@ export const TrailerModal: React.FC = () => {
             <button
               onClick={closeTrailer}
               aria-label="Close trailer"
-              className="rounded-full p-1 text-neutral-400 hover:bg-neutral-800 hover:text-white transition"
+              className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-800 hover:text-white transition"
             >
               <X className="h-5 w-5" />
             </button>

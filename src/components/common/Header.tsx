@@ -107,14 +107,14 @@ export const Header: React.FC = () => {
   const activeRegionObj = SUPPORTED_REGIONS.find((r) => r.code === userRegion) || SUPPORTED_REGIONS[0];
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-neutral-800 bg-[#0f0f0f]/95 px-3 md:px-5 backdrop-blur-md">
+    <header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-zinc-800/80 bg-[#09090b]/95 px-3 md:px-5 backdrop-blur-md">
       {/* Left Section: Menu Toggle & Brand Logo */}
       <div className="flex items-center gap-2 md:gap-4">
         {/* Mobile Hamburger */}
         <button
           onClick={toggleMobileSidebar}
           aria-label="Toggle navigation menu"
-          className="flex h-10 w-10 items-center justify-center rounded-full text-neutral-300 hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 md:hidden"
+          className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800/60 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-500 md:hidden transition-colors"
         >
           <Menu className="h-5 w-5" />
         </button>
@@ -123,7 +123,7 @@ export const Header: React.FC = () => {
         <button
           onClick={toggleSidebar}
           aria-label="Toggle sidebar expansion"
-          className="hidden h-10 w-10 items-center justify-center rounded-full text-neutral-300 hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 md:flex"
+          className="hidden h-10 w-10 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800/60 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-500 md:flex transition-colors"
         >
           <Menu className="h-5 w-5" />
         </button>
@@ -133,12 +133,12 @@ export const Header: React.FC = () => {
           onClick={() => navigate('/')}
           className="flex items-center gap-2 transition hover:opacity-90 focus-visible:outline-none"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-600 text-white shadow-md shadow-red-900/40">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-red-600 text-white shadow-sm shadow-red-950">
             <Film className="h-4 w-4" />
           </div>
-          <div className="flex items-baseline">
-            <span className="font-extrabold tracking-tight text-lg text-white font-['Oswald',sans-serif]">CINE</span>
-            <span className="rounded bg-red-600 px-1 py-0.2 text-xs font-bold text-white uppercase ml-0.5 tracking-wider">TUBE</span>
+          <div className="flex items-baseline tracking-tight">
+            <span className="font-bold text-base text-zinc-100 tracking-wider">CINE</span>
+            <span className="rounded bg-red-600/90 px-1 py-0.2 text-[10px] font-bold text-white uppercase ml-1 tracking-wider">TUBE</span>
           </div>
         </button>
       </div>
@@ -156,36 +156,36 @@ export const Header: React.FC = () => {
               }}
               onFocus={() => setIsDropdownOpen(true)}
               placeholder="Search movies, TV shows, studios, directors, actors..."
-              className="h-10 w-full rounded-l-full border border-neutral-700 bg-[#121212] pl-4 pr-9 text-sm text-neutral-100 placeholder-neutral-500 transition-colors focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+              className="h-9 w-full rounded-l-lg border border-zinc-800 bg-zinc-900/90 pl-3.5 pr-8 text-xs text-zinc-100 placeholder-zinc-500 transition-colors focus:border-zinc-600 focus:outline-none"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
                 aria-label="Clear search text"
-                className="absolute right-3 text-neutral-400 hover:text-white"
+                className="absolute right-2.5 text-zinc-500 hover:text-zinc-200"
               >
-                <X className="h-4 w-4" />
+                <X className="h-3.5 w-3.5" />
               </button>
             )}
           </div>
           <button
             type="submit"
             aria-label="Search"
-            className="flex h-10 w-14 items-center justify-center rounded-r-full border border-l-0 border-neutral-700 bg-neutral-800 text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
+            className="flex h-9 w-12 items-center justify-center rounded-r-lg border border-l-0 border-zinc-800 bg-zinc-850 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100 focus-visible:outline-none"
           >
-            <Search className="h-4 w-4" />
+            <Search className="h-3.5 w-3.5" />
           </button>
         </form>
 
         {/* Live Search Suggestions Dropdown */}
         {isDropdownOpen && searchQuery.trim().length > 0 && (
-          <div className="absolute left-0 top-11 z-50 w-full overflow-hidden rounded-2xl border border-neutral-700 bg-[#181818] shadow-2xl backdrop-blur-lg">
+          <div className="absolute left-0 top-11 z-50 w-full overflow-hidden rounded-xl border border-zinc-800 bg-[#121215] shadow-2xl backdrop-blur-xl">
             {isSearching && suggestions.length === 0 ? (
-              <div className="p-4 text-center text-xs text-neutral-400">Searching TMDB...</div>
+              <div className="p-3 text-center text-xs text-zinc-400">Searching TMDB...</div>
             ) : suggestions.length > 0 ? (
-              <div className="py-2">
-                <div className="px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+              <div className="py-1.5">
+                <div className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
                   Instant Suggestions
                 </div>
                 {suggestions.map((item) => {
@@ -200,24 +200,24 @@ export const Header: React.FC = () => {
                     <button
                       key={`${item.media_type || 'item'}-${item.id}`}
                       onClick={() => handleSuggestionClick(item)}
-                      className="flex w-full items-center gap-3 px-3 py-2 text-left transition hover:bg-neutral-800"
+                      className="flex w-full items-center gap-3 px-3 py-2 text-left transition hover:bg-zinc-800/60"
                     >
                       {poster ? (
                         <img
                           src={getTMDBImageUrl(poster, 'w92')}
                           alt=""
-                          className={`h-10 w-7 object-cover bg-neutral-900 ${
-                            isPerson ? 'rounded-full h-8 w-8' : isCompany ? 'object-contain h-7 w-7 p-0.5 bg-white rounded' : 'rounded'
+                          className={`h-9 w-6.5 object-cover bg-zinc-900 ${
+                            isPerson ? 'rounded-full h-7 w-7' : isCompany ? 'object-contain h-6 w-6 p-0.5 bg-white rounded' : 'rounded'
                           }`}
                         />
                       ) : (
-                        <div className="flex h-10 w-7 items-center justify-center rounded bg-neutral-800 text-neutral-400">
-                          {isPerson ? <UserIcon className="h-4 w-4" /> : isTv ? <Tv className="h-4 w-4" /> : isCompany ? <Building2 className="h-4 w-4" /> : <Film className="h-4 w-4" />}
+                        <div className="flex h-9 w-6.5 items-center justify-center rounded bg-zinc-850 text-zinc-500">
+                          {isPerson ? <UserIcon className="h-3.5 w-3.5" /> : isTv ? <Tv className="h-3.5 w-3.5" /> : isCompany ? <Building2 className="h-3.5 w-3.5" /> : <Film className="h-3.5 w-3.5" />}
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <div className="truncate text-sm font-medium text-white">{title}</div>
-                        <div className="flex items-center gap-1.5 text-xs text-neutral-400">
+                        <div className="truncate text-xs font-medium text-zinc-200">{title}</div>
+                        <div className="flex items-center gap-1.5 text-[11px] text-zinc-500">
                           <span className="capitalize text-neutral-300">
                             {isPerson ? 'Person' : isCompany ? 'Production Studio' : isTv ? 'TV Series' : 'Movie'}
                           </span>
@@ -273,15 +273,15 @@ export const Header: React.FC = () => {
             onClick={() => setIsRegionMenuOpen((prev) => !prev)}
             title={`Streaming Watch Providers Region: ${activeRegionObj.name}`}
             aria-label="Select streaming providers region"
-            className="flex h-9 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium text-neutral-300 hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-500"
+            className="flex h-9 items-center gap-1.5 rounded-lg px-2 text-xs font-medium text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200 focus-visible:outline-none transition-colors"
           >
             <span className="text-sm">{activeRegionObj.flag}</span>
-            <span className="hidden md:inline">{activeRegionObj.code}</span>
+            <span className="hidden md:inline font-mono text-[11px]">{activeRegionObj.code}</span>
           </button>
 
           {isRegionMenuOpen && (
-            <div className="absolute right-0 top-11 z-50 w-48 rounded-xl border border-neutral-700 bg-[#181818] p-1.5 shadow-xl">
-              <div className="px-2.5 py-1 text-[11px] font-semibold uppercase text-neutral-400">
+            <div className="absolute right-0 top-11 z-50 w-48 rounded-xl border border-zinc-800 bg-[#121215] p-1.5 shadow-xl backdrop-blur-xl">
+              <div className="px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
                 Watch Provider Region
               </div>
               {SUPPORTED_REGIONS.map((reg) => (
@@ -291,7 +291,7 @@ export const Header: React.FC = () => {
                     setUserRegion(reg.code);
                     setIsRegionMenuOpen(false);
                   }}
-                  className="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs text-neutral-200 hover:bg-neutral-700/60"
+                  className="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 hover:bg-zinc-800/60 transition-colors"
                 >
                   <span className="flex items-center gap-2">
                     <span>{reg.flag}</span>
@@ -307,17 +307,13 @@ export const Header: React.FC = () => {
         {/* TMDB API Key / Status Button */}
         <button
           onClick={openApiModal}
-          title={apiStatus?.configured ? 'TMDB API is Live' : 'Configure TMDB API Token'}
+          title={apiStatus?.configured ? 'TMDB API is Live & Connected' : 'Configure TMDB API Token'}
           aria-label="TMDB API status"
-          className={`flex h-9 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium transition ${
-            apiStatus?.configured
-              ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/60 hover:bg-emerald-900/40'
-              : 'bg-amber-950/50 text-amber-300 border border-amber-800/60 hover:bg-amber-900/40'
-          }`}
+          className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium bg-emerald-950/40 text-emerald-400 border border-emerald-800/50 hover:bg-emerald-900/30 transition-colors"
         >
           <Key className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">
-            {apiStatus?.configured ? 'TMDB Live' : 'API Setup'}
+            TMDB Live
           </span>
         </button>
 
@@ -325,7 +321,7 @@ export const Header: React.FC = () => {
         <button
           onClick={() => navigate('/watchlist')}
           aria-label="View Watchlist"
-          className="relative flex h-9 w-9 items-center justify-center rounded-full text-neutral-300 hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+          className="relative flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-100 focus-visible:outline-none transition-colors"
           title="My Watchlist"
         >
           <Bookmark className="h-4 w-4" />
@@ -340,7 +336,7 @@ export const Header: React.FC = () => {
         <button
           onClick={() => navigate('/settings')}
           aria-label="Application Settings"
-          className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-300 hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-100 focus-visible:outline-none transition-colors"
           title="Settings"
         >
           <SlidersHorizontal className="h-4 w-4" />
@@ -351,16 +347,16 @@ export const Header: React.FC = () => {
           <button
             onClick={() => setIsProfileMenuOpen((prev) => !prev)}
             aria-label="User Account Menu"
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-neutral-800 to-neutral-700 text-xs font-bold text-neutral-200 border border-neutral-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-850 text-xs font-semibold text-zinc-300 border border-zinc-700/80 hover:border-zinc-500 focus-visible:outline-none transition-colors"
           >
             CT
           </button>
 
           {isProfileMenuOpen && (
-            <div className="absolute right-0 top-11 z-50 w-56 rounded-xl border border-neutral-700 bg-[#181818] p-2 shadow-2xl">
-              <div className="border-b border-neutral-700/80 px-3 py-2">
-                <div className="text-xs font-semibold text-white">CineTube Explorer</div>
-                <div className="text-[11px] text-neutral-400">Guest Session</div>
+            <div className="absolute right-0 top-11 z-50 w-52 rounded-xl border border-zinc-800 bg-[#121215] p-1.5 shadow-2xl backdrop-blur-xl">
+              <div className="border-b border-zinc-800/80 px-3 py-2">
+                <div className="text-xs font-semibold text-zinc-200">CineTube Explorer</div>
+                <div className="text-[10px] text-zinc-500">TMDB Powered Catalog</div>
               </div>
               <div className="pt-1">
                 <button
@@ -368,19 +364,19 @@ export const Header: React.FC = () => {
                     setIsProfileMenuOpen(false);
                     navigate('/watchlist');
                   }}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-neutral-200 hover:bg-neutral-700/60"
+                  className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 hover:bg-zinc-800/60 transition-colors"
                 >
-                  <Bookmark className="h-3.5 w-3.5 text-neutral-400" />
-                  <span>My Watchlist ({watchlist.length})</span>
+                  <Bookmark className="h-3.5 w-3.5 text-zinc-400" />
+                  <span>Watchlist ({watchlist.length})</span>
                 </button>
                 <button
                   onClick={() => {
                     setIsProfileMenuOpen(false);
                     navigate('/history');
                   }}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-neutral-200 hover:bg-neutral-700/60"
+                  className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 hover:bg-zinc-800/60 transition-colors"
                 >
-                  <Film className="h-3.5 w-3.5 text-neutral-400" />
+                  <Film className="h-3.5 w-3.5 text-zinc-400" />
                   <span>Watch History</span>
                 </button>
                 <button
@@ -388,9 +384,9 @@ export const Header: React.FC = () => {
                     setIsProfileMenuOpen(false);
                     navigate('/companies');
                   }}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-neutral-200 hover:bg-neutral-700/60"
+                  className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 hover:bg-zinc-800/60 transition-colors"
                 >
-                  <Building2 className="h-3.5 w-3.5 text-neutral-400" />
+                  <Building2 className="h-3.5 w-3.5 text-zinc-400" />
                   <span>Studio Directory</span>
                 </button>
                 <button
@@ -398,10 +394,10 @@ export const Header: React.FC = () => {
                     setIsProfileMenuOpen(false);
                     navigate('/settings');
                   }}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-neutral-200 hover:bg-neutral-700/60"
+                  className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 hover:bg-zinc-800/60 transition-colors"
                 >
-                  <SlidersHorizontal className="h-3.5 w-3.5 text-neutral-400" />
-                  <span>Settings &amp; TMDB API</span>
+                  <SlidersHorizontal className="h-3.5 w-3.5 text-zinc-400" />
+                  <span>Settings &amp; Sources</span>
                 </button>
               </div>
             </div>

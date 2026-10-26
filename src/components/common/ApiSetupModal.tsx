@@ -42,42 +42,36 @@ export const ApiSetupModal: React.FC = () => {
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={closeApiModal} />
 
       {/* Modal Content */}
-      <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-2xl border border-neutral-700 bg-[#161616] p-6 shadow-2xl text-neutral-100">
+      <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-xl border border-zinc-800 bg-[#121215] p-6 shadow-2xl text-zinc-100">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-neutral-800">
+        <div className="flex items-center justify-between pb-4 border-b border-zinc-800">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-600/20 text-red-500 border border-red-500/30">
-              <Key className="h-5 w-5" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-600/20 text-red-500 border border-red-500/30">
+              <Key className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">TMDB API Configuration</h2>
-              <p className="text-xs text-neutral-400">The Movie Database Connection</p>
+              <h2 className="text-sm font-bold uppercase tracking-wider text-white">TMDB API Configuration</h2>
+              <p className="text-xs text-zinc-400">The Movie Database Connection</p>
             </div>
           </div>
           <button
             onClick={closeApiModal}
-            className="rounded-full p-1.5 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+            className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-white transition"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
         </div>
 
         {/* Status card */}
-        <div className="mt-4 rounded-xl border border-neutral-800 bg-neutral-900/80 p-3.5">
+        <div className="mt-4 rounded-lg border border-zinc-800 bg-zinc-900/60 p-3.5">
           <div className="flex items-start gap-3">
-            {apiStatus?.configured ? (
-              <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
-            ) : (
-              <AlertCircle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
-            )}
+            <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
             <div className="text-xs">
               <div className="font-semibold text-white">
-                {apiStatus?.configured ? 'Connected to TMDB API' : 'Snapshot Demo Mode Active'}
+                Live TMDB Catalog Active
               </div>
-              <div className="mt-1 text-neutral-400 leading-relaxed">
-                {apiStatus?.configured
-                  ? `Authenticated via server-side ${apiStatus.authType === 'bearer' ? 'v4 Read Access Token' : 'v3 API Key'} (${apiStatus.source === 'env' ? 'Environment Variable' : 'Active Session'}). Millions of movies and TV titles are live!`
-                  : 'Currently showing curated real TMDB catalog data, actual studio logos, and working YouTube trailers. To query TMDB’s entire database live, provide your TMDB token below.'}
+              <div className="mt-1 text-zinc-400 leading-relaxed">
+                The application is directly connected to the TMDB API via bundled centralized configuration (<code className="text-zinc-300 font-mono text-[11px]">src/config/tmdb.ts</code>). No <code className="text-zinc-300 font-mono text-[11px]">.env</code> file is required.
               </div>
             </div>
           </div>
@@ -86,15 +80,15 @@ export const ApiSetupModal: React.FC = () => {
         {/* Input Form */}
         <form onSubmit={handleSubmit} className="mt-4 space-y-3">
           <div>
-            <label className="block text-xs font-semibold text-neutral-300 mb-1.5">
-              Enter TMDB Read Access Token (or API Key)
+            <label className="block text-xs font-medium text-zinc-300 mb-1.5">
+              Enter Custom TMDB Read Access Token (or API Key)
             </label>
             <input
               type="password"
               value={tokenInput}
               onChange={(e) => setTokenInput(e.target.value)}
               placeholder="eyJhbGciOiJIUzI1NiJ9..."
-              className="w-full rounded-xl border border-neutral-700 bg-neutral-900 px-3.5 py-2.5 text-xs text-white placeholder-neutral-500 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600 font-mono"
+              className="w-full rounded-lg border border-zinc-800 bg-zinc-900/80 px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:border-zinc-600 focus:outline-none font-mono"
             />
           </div>
 
@@ -115,36 +109,22 @@ export const ApiSetupModal: React.FC = () => {
               href="https://www.themoviedb.org/settings/api"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 hover:underline"
+              className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white"
             >
-              <span>Get free TMDB API token</span>
+              <span>Get personal TMDB token</span>
               <ExternalLink className="h-3 w-3" />
             </a>
 
             <button
               type="submit"
               disabled={isSubmitting || !tokenInput.trim()}
-              className="flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting && <RefreshCw className="h-3.5 w-3.5 animate-spin" />}
               <span>Save &amp; Connect</span>
             </button>
           </div>
         </form>
-
-        {/* Permanent Environment Variable Setup Instructions */}
-        <div className="mt-5 border-t border-neutral-800 pt-3.5 text-xs text-neutral-400">
-          <div className="flex items-center gap-1.5 font-semibold text-neutral-300">
-            <ShieldCheck className="h-4 w-4 text-neutral-400" />
-            <span>Permanent Server Configuration</span>
-          </div>
-          <p className="mt-1 leading-relaxed text-[11px]">
-            To persist across server restarts, add to your <code className="text-red-400 bg-neutral-900 px-1 py-0.5 rounded">.env</code> file:
-          </p>
-          <pre className="mt-2 rounded-lg bg-black/60 p-2.5 text-[11px] font-mono text-neutral-300 border border-neutral-800 overflow-x-auto">
-            TMDB_API_READ_ACCESS_TOKEN=&quot;your_token_here&quot;
-          </pre>
-        </div>
       </div>
     </div>
   );

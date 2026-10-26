@@ -85,23 +85,23 @@ export const HomePage: React.FC = () => {
             <button
               key={studio.id}
               onClick={() => navigate(`/company/${studio.id}`)}
-              className="group relative flex flex-col items-center justify-center rounded-xl border border-neutral-800 bg-[#161616] p-3 text-center transition hover:border-neutral-600 hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
+              className="group relative flex flex-col items-center justify-center rounded-xl border border-zinc-800/80 bg-[#121215] p-3 text-center transition hover:border-zinc-700 hover:bg-zinc-850/60 focus-visible:outline-none"
             >
               <div className="flex h-10 w-20 items-center justify-center mb-2">
                 {studio.logoPath ? (
                   <img
                     src={getTMDBImageUrl(studio.logoPath, 'w185')}
                     alt={studio.name}
-                    className="max-h-full max-w-full object-contain filter invert brightness-200 group-hover:scale-110 transition-transform"
+                    className="max-h-full max-w-full object-contain filter invert brightness-200 group-hover:scale-105 transition-transform"
                     onError={(e) => {
                       (e.target as HTMLElement).style.display = 'none';
                     }}
                   />
                 ) : (
-                  <Building2 className="h-6 w-6 text-neutral-500" />
+                  <Building2 className="h-6 w-6 text-zinc-500" />
                 )}
               </div>
-              <span className="text-xs font-semibold text-neutral-200 group-hover:text-white truncate w-full">
+              <span className="text-xs font-semibold text-zinc-200 group-hover:text-white truncate w-full">
                 {studio.shortName}
               </span>
             </button>
@@ -114,14 +114,14 @@ export const HomePage: React.FC = () => {
         <section className="px-4 md:px-6 my-6">
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Play className="h-5 w-5 text-red-500 fill-red-500" />
-              <h2 className="text-lg md:text-xl font-bold tracking-tight text-white font-['Oswald',sans-serif]">
+              <Play className="h-4 w-4 text-red-500 fill-red-500" />
+              <h2 className="text-base md:text-lg font-bold tracking-tight text-white font-['Oswald',sans-serif]">
                 CONTINUE WATCHING
               </h2>
             </div>
             <button
               onClick={() => navigate('/history')}
-              className="text-xs font-semibold text-neutral-400 transition hover:text-red-400"
+              className="text-xs font-medium text-zinc-400 transition hover:text-white"
             >
               View Full History →
             </button>
@@ -141,7 +141,7 @@ export const HomePage: React.FC = () => {
                   onClick={() => navigate(resumeUrl)}
                   className="group relative flex w-48 sm:w-56 shrink-0 flex-col cursor-pointer transition select-none"
                 >
-                  <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-neutral-900 border border-neutral-800 shadow-md group-hover:border-neutral-600 transition">
+                  <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-zinc-900 border border-zinc-800/80 shadow-md group-hover:border-zinc-700 transition">
                     <img
                       src={
                         item.backdrop_path

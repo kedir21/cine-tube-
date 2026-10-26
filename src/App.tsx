@@ -125,21 +125,21 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#0f0f0f] text-neutral-100">
+    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#09090b] text-zinc-100">
       {/* Sticky Top Header */}
       <Header />
 
       {/* Dismissible API Notification Banner if not configured yet */}
       {!bannerDismissed && apiStatus && !apiStatus.configured && (
-        <div className="flex items-center justify-between border-b border-amber-900/50 bg-amber-950/40 px-4 py-2 text-xs text-amber-200">
+        <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900/90 px-4 py-2 text-xs text-zinc-300">
           <div className="flex items-center gap-2">
-            <Key className="h-4 w-4 text-amber-400 shrink-0" />
+            <Key className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
             <span>
-              <strong>Demo Snapshot Active:</strong> Displaying authentic TMDB catalog &amp; YouTube trailers. To query TMDB’s full live database, connect your TMDB token.
+              <strong>Demo Snapshot Active:</strong> To query TMDB’s full live database, connect your TMDB token.
             </span>
             <button
               onClick={openApiModal}
-              className="ml-2 underline font-semibold text-white hover:text-amber-100"
+              className="ml-2 underline font-semibold text-white hover:text-zinc-200"
             >
               Connect API Key
             </button>
@@ -147,7 +147,7 @@ const AppContent: React.FC = () => {
           <button
             onClick={() => setBannerDismissed(true)}
             aria-label="Dismiss banner"
-            className="text-amber-400 hover:text-white"
+            className="text-zinc-400 hover:text-white"
           >
             <X className="h-4 w-4" />
           </button>
@@ -159,7 +159,7 @@ const AppContent: React.FC = () => {
         <Sidebar />
 
         {/* Scrollable Main Viewport */}
-        <main className="flex-1 overflow-y-auto bg-[#0f0f0f] scrollbar-thin scrollbar-thumb-neutral-800">
+        <main className="flex-1 overflow-y-auto bg-[#09090b] scrollbar-thin scrollbar-thumb-zinc-800">
           {renderRoute()}
         </main>
       </div>

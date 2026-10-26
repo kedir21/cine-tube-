@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   RotateCcw,
   Maximize2,
@@ -10,9 +10,6 @@ import {
   ChevronRight,
   ChevronLeft,
   ExternalLink,
-  Shield,
-  ShieldAlert,
-  ShieldCheck,
 } from 'lucide-react';
 import {
   PlayerSourceId,
@@ -35,18 +32,6 @@ interface MultiSourcePlayerProps {
   onEpisodeChange?: (newEpisode: number) => void;
   officialTrailer?: TMDBVideo | null;
 }
-
-// Standard sandbox permissions allowing essential playback, forms, same-origin storage, and popups/new tabs:
-// - allow-scripts: enables video player JS controls
-// - allow-same-origin: allows player domain cookies/local storage for stream sessions
-// - allow-popups: allows player controls to open links in popups/new tabs
-// - allow-popups-to-escape-sandbox: ensures opened links don't inherit sandboxing
-// - allow-forms: allows player search or configuration forms
-// - allow-presentation: allows media presentation / casting
-export const PLAYER_SANDBOX_PERMISSIONS =
-  'allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation';
-
-export type SandboxMode = 'standard' | 'unrestricted';
 
 export const MultiSourcePlayer: React.FC<MultiSourcePlayerProps> = ({
   mediaType,
@@ -76,11 +61,6 @@ export const MultiSourcePlayer: React.FC<MultiSourcePlayerProps> = ({
   const [isTheaterMode, setIsTheaterMode] = useState<boolean>(false);
   const [duration, setDuration] = useState<number>(0);
   const [progressPercent, setProgressPercent] = useState<number>(0);
-
-  // Sandbox Mode:
-  // 'standard': uses PLAYER_SANDBOX_PERMISSIONS (allow-scripts, allow-same-origin, allow-popups, allow-popups-to-escape-sandbox, etc.)
-  // 'unrestricted': no sandbox attribute (for embeds that strictly prohibit sandbox attributes)
-  const [sandboxMode, setSandboxMode] = useState<SandboxMode>('standard');
 
   const containerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -134,14 +114,15 @@ export const MultiSourcePlayer: React.FC<MultiSourcePlayerProps> = ({
   useEffect(() => {
     setIsLoading(true);
     setHasError(false);
+    setErrorMessage(null);
 
-    // Timeout safety
+    // Timeout safety for unresponsive streams
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 4500);
 
     return () => clearTimeout(timer);
-  }, [embedUrl, iframeKey, sandboxMode]);
+  }, [embedUrl, iframeKey]);
 
   // Listen to postMessage events from Vidy iframe
   useEffect(() => {
@@ -204,7 +185,7 @@ export const MultiSourcePlayer: React.FC<MultiSourcePlayerProps> = ({
     setIsLoading(false);
     setHasError(true);
     setErrorMessage(
-      'Unable to load the video player stream. The external server may be temporarily unreachable, blocking iframe playback, or undergoing maintenance.'
+      'Unable to load the video stream. The external server may be temporarily unreachable, blocking iframe playback, or undergoing maintenance.'
     );
   };
 
@@ -228,31 +209,26 @@ export const MultiSourcePlayer: React.FC<MultiSourcePlayerProps> = ({
 
   const activePlayerObj = AVAILABLE_PLAYERS.find((p) => p.id === activeSource);
 
-  // Standard sandbox value allows essential playback, same-origin scripts, forms, and popups/new-tabs
-  // explicitly incorporating 'allow-popups', 'allow-popups-to-escape-sandbox', and 'allow-same-origin'
-  const sandboxAttributeValue =
-    sandboxMode === 'standard' ? PLAYER_SANDBOX_PERMISSIONS : undefined;
-
   return (
     <div
       ref={containerRef}
-      className={`relative w-full rounded-xl bg-black border border-zinc-800/80 shadow-2xl transition-all duration-300 ${
+      className={`relative w-full rounded-2xl bg-black border border-zinc-800/80 shadow-2xl overflow-hidden transition-all duration-300 ${
         isTheaterMode ? 'fixed inset-x-0 top-14 z-40 max-w-none rounded-none border-x-0' : ''
       }`}
     >
-      {/* Player Header Bar: Server Source Selector & Controls */}
+      {/* Player Top Navigation Bar: Server Selector & Clean Controls */}
       <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-zinc-800/80 bg-zinc-900/90 px-3.5 py-2.5 backdrop-blur-md">
         {/* Source Tabs */}
-        <div className="flex items-center gap-1 p-0.5 bg-zinc-950/80 rounded-lg border border-zinc-800">
+        <div className="flex items-center gap-1 p-0.5 bg-zinc-950 rounded-xl border border-zinc-800/80">
           {AVAILABLE_PLAYERS.map((player) => {
             const isSelected = activeSource === player.id;
             return (
               <button
                 key={player.id}
                 onClick={() => handleSelectSource(player.id)}
-                className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                   isSelected
-                    ? 'bg-zinc-800 text-zinc-100 shadow-sm border border-zinc-700'
+                    ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700'
                     : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
                 }`}
                 title={player.description}
@@ -271,9 +247,9 @@ export const MultiSourcePlayer: React.FC<MultiSourcePlayerProps> = ({
           {officialTrailer?.key && (
             <button
               onClick={() => handleSelectSource('trailer')}
-              className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                 activeSource === 'trailer'
-                  ? 'bg-zinc-800 text-zinc-100 shadow-sm border border-zinc-700'
+                  ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700'
                   : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
               }`}
               title="Official YouTube Trailer"
@@ -284,49 +260,23 @@ export const MultiSourcePlayer: React.FC<MultiSourcePlayerProps> = ({
           )}
         </div>
 
-        {/* Right Player Controls (Direct Open, Reload, Sandbox Toggle, Theater, Fullscreen) */}
+        {/* Right Player Controls (Direct Open, Reload, Theater, Fullscreen) */}
         <div className="flex items-center gap-1.5">
           {/* Direct Stream in New Tab */}
           <button
             onClick={handleOpenDirect}
-            title="Open direct player stream in a new tab"
-            className="flex h-8 items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950/70 px-2.5 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition"
+            title="Open direct stream in a new tab"
+            className="flex h-8 items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950/70 px-2.5 text-xs font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white transition"
           >
             <span>Open Direct</span>
-            <ExternalLink className="h-3 w-3 text-zinc-400" />
-          </button>
-
-          {/* Sandbox Toggle */}
-          <button
-            onClick={() =>
-              setSandboxMode((prev) => (prev === 'standard' ? 'unrestricted' : 'standard'))
-            }
-            title={`Sandbox Mode: ${
-              sandboxMode === 'standard'
-                ? 'Standard (Popups & Scripts Allowed)'
-                : 'Unrestricted (Full Compatibility)'
-            } - Click to toggle`}
-            className={`flex h-8 items-center gap-1 rounded-lg border px-2 text-[11px] transition ${
-              sandboxMode === 'standard'
-                ? 'border-zinc-800 bg-zinc-950/70 text-zinc-400 hover:text-zinc-200'
-                : 'border-amber-800/60 bg-amber-950/30 text-amber-300'
-            }`}
-          >
-            {sandboxMode === 'standard' ? (
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-            ) : (
-              <ShieldAlert className="h-3.5 w-3.5 text-amber-400" />
-            )}
-            <span className="hidden lg:inline">
-              {sandboxMode === 'standard' ? 'Sandbox' : 'Unrestricted'}
-            </span>
+            <ExternalLink className="h-3.5 w-3.5 text-zinc-400" />
           </button>
 
           {/* Reload Player */}
           <button
             onClick={handleReload}
             title="Reload Player Stream"
-            className="flex h-8 items-center gap-1 rounded-lg border border-zinc-800 bg-zinc-950/70 px-2.5 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition"
+            className="flex h-8 items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950/70 px-2.5 text-xs font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white transition"
           >
             <RotateCcw className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Reload</span>
@@ -356,12 +306,11 @@ export const MultiSourcePlayer: React.FC<MultiSourcePlayerProps> = ({
         </div>
       </div>
 
-      {/* Video Viewport: Strict Responsive 16:9 Aspect Ratio */}
+      {/* Video Viewport: Strict Responsive 16:9 Aspect Ratio with Unrestricted Iframe Embedding */}
       <div className="relative w-full aspect-video bg-black overflow-hidden">
-        {/* Iframe player with configured sandbox allowing popups, same-origin, and scripts */}
         {embedUrl ? (
           <iframe
-            key={`${activeSource}-${season}-${episode}-${sandboxMode}-${iframeKey}`}
+            key={`${activeSource}-${season}-${episode}-${iframeKey}`}
             ref={iframeRef}
             src={embedUrl}
             title={`${title} - ${activeSource}`}
@@ -370,7 +319,6 @@ export const MultiSourcePlayer: React.FC<MultiSourcePlayerProps> = ({
             frameBorder="0"
             allowFullScreen
             allow="encrypted-media; autoplay *; fullscreen *"
-            sandbox={sandboxAttributeValue}
             onLoad={() => {
               setIsLoading(false);
               setHasError(false);
@@ -388,33 +336,33 @@ export const MultiSourcePlayer: React.FC<MultiSourcePlayerProps> = ({
           </div>
         )}
 
-        {/* Minimalist Loading Spinner overlay */}
+        {/* Minimalist Loading Spinner */}
         {isLoading && (
-          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-xs transition-opacity">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-600 border-t-rose-500" />
-            <span className="mt-2.5 text-[11px] font-medium tracking-wide uppercase text-zinc-400">
-              Loading {activeSource === 'trailer' ? 'Trailer' : activePlayerObj?.name}...
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center bg-black/70 backdrop-blur-xs transition-opacity">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-700 border-t-rose-500" />
+            <span className="mt-2.5 text-xs font-medium tracking-wide text-zinc-400">
+              Connecting to {activeSource === 'trailer' ? 'Trailer' : activePlayerObj?.name}...
             </span>
           </div>
         )}
 
-        {/* User-friendly Error & Fallback View */}
+        {/* User-friendly Fallback Message & Actions */}
         {hasError && (
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-zinc-950/95 p-6 text-center backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-zinc-950/95 p-6 text-center backdrop-blur-sm">
             <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-500">
               <AlertTriangle className="h-6 w-6" />
             </div>
-            <h3 className="text-base font-semibold text-zinc-100">Unable to Load Video Player</h3>
+            <h3 className="text-base font-semibold text-zinc-100">Playback Connection Issue</h3>
             <p className="mt-1.5 max-w-md text-xs leading-relaxed text-zinc-400">
               {errorMessage ||
-                'The embedded video source failed to load or is taking too long to respond. You can retry loading the player, try an alternate streaming server, or open the stream in a new tab.'}
+                'The embedded video source is temporarily unreachable or restricted by browser policies. You can retry the stream, switch to another server, or open the link directly.'}
             </p>
 
             <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
-              {/* Prominent User-Friendly Retry Button */}
+              {/* Prominent Retry Button */}
               <button
                 onClick={handleReload}
-                className="flex items-center gap-2 rounded-lg bg-rose-600 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-rose-950/40 hover:bg-rose-500 active:scale-95 transition"
+                className="flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-rose-950/40 hover:bg-rose-500 active:scale-95 transition"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 <span>Retry Player</span>
@@ -423,7 +371,7 @@ export const MultiSourcePlayer: React.FC<MultiSourcePlayerProps> = ({
               {/* Direct Open in New Tab */}
               <button
                 onClick={handleOpenDirect}
-                className="flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800 px-3.5 py-2 text-xs font-medium text-zinc-200 hover:bg-zinc-700 active:scale-95 transition"
+                className="flex items-center gap-1.5 rounded-xl border border-zinc-700 bg-zinc-800 px-3.5 py-2 text-xs font-medium text-zinc-200 hover:bg-zinc-700 active:scale-95 transition"
               >
                 <span>Open in New Tab</span>
                 <ExternalLink className="h-3.5 w-3.5" />
@@ -434,44 +382,30 @@ export const MultiSourcePlayer: React.FC<MultiSourcePlayerProps> = ({
                 <button
                   key={alt.id}
                   onClick={() => handleSelectSource(alt.id)}
-                  className="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white active:scale-95 transition"
+                  className="rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white active:scale-95 transition"
                 >
                   Switch to {alt.name}
                 </button>
               ))}
-
-              {sandboxMode === 'standard' && (
-                <button
-                  onClick={() => {
-                    setSandboxMode('unrestricted');
-                    setHasError(false);
-                    setIsLoading(true);
-                  }}
-                  title="If the player server blocks sandbox attributes completely, click to switch to unrestricted mode"
-                  className="rounded-lg border border-zinc-800/80 bg-zinc-950/60 px-3 py-2 text-[11px] font-medium text-zinc-400 hover:text-amber-400 hover:border-amber-900/50 transition"
-                >
-                  Bypass Sandbox
-                </button>
-              )}
             </div>
           </div>
         )}
       </div>
 
       {/* Sub-Player Information Bar */}
-      <div className="border-t border-zinc-800/80 bg-zinc-950/90 px-4 py-2.5">
+      <div className="border-t border-zinc-800/80 bg-zinc-950 px-4 py-2.5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-zinc-400">
-          {/* Episode Quick Switcher for TV */}
+          {/* Episode Quick Switcher for TV Series */}
           {mediaType === 'tv' && (
             <div className="flex items-center gap-2">
-              <span className="font-medium text-zinc-200">
+              <span className="font-semibold text-zinc-200">
                 Season {season}, Episode {episode}
               </span>
               <div className="flex items-center gap-1 ml-1.5">
                 <button
                   onClick={() => onEpisodeChange && onEpisodeChange(Math.max(1, episode - 1))}
                   disabled={episode <= 1}
-                  className="flex h-6 items-center gap-1 rounded border border-zinc-800 bg-zinc-900 px-2 text-[11px] text-zinc-300 hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  className="flex h-6 items-center gap-1 rounded-md border border-zinc-800 bg-zinc-900 px-2 text-[11px] text-zinc-300 hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition"
                   title="Previous Episode"
                 >
                   <ChevronLeft className="h-3 w-3" />
@@ -480,7 +414,7 @@ export const MultiSourcePlayer: React.FC<MultiSourcePlayerProps> = ({
                 <button
                   onClick={() => onEpisodeChange && onEpisodeChange(episode + 1)}
                   disabled={episode >= totalEpisodesInSeason}
-                  className="flex h-6 items-center gap-1 rounded border border-zinc-800 bg-zinc-900 px-2 text-[11px] text-zinc-300 hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  className="flex h-6 items-center gap-1 rounded-md border border-zinc-800 bg-zinc-900 px-2 text-[11px] text-zinc-300 hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition"
                   title="Next Episode"
                 >
                   <span>Next</span>
@@ -502,20 +436,8 @@ export const MultiSourcePlayer: React.FC<MultiSourcePlayerProps> = ({
               </span>
             )}
 
-            <span
-              className="flex items-center gap-1 text-[11px] text-zinc-400 bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded"
-              title={
-                sandboxMode === 'standard'
-                  ? 'Sandbox: Scripts, Same-Origin, Forms, and Popups Allowed'
-                  : 'Unrestricted Iframe Mode'
-              }
-            >
-              <Shield className="h-3 w-3 text-zinc-500" />
-              <span>{sandboxMode === 'standard' ? 'Popups Allowed' : 'Unrestricted'}</span>
-            </span>
-
             <span className="text-[11px] text-zinc-500 font-mono">
-              TMDB {tmdbId}
+              TMDB #{tmdbId}
             </span>
           </div>
         </div>

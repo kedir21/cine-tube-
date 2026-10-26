@@ -8,7 +8,6 @@ import { AppProvider, useApp } from './context/AppContext';
 import { Header } from './components/common/Header';
 import { Sidebar } from './components/common/Sidebar';
 import { TrailerModal } from './components/common/TrailerModal';
-import { ApiSetupModal } from './components/common/ApiSetupModal';
 
 // Pages
 import { HomePage } from './pages/HomePage';
@@ -23,11 +22,9 @@ import { WatchlistPage } from './pages/WatchlistPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { WatchPage } from './pages/WatchPage';
 import { SettingsPage } from './pages/SettingsPage';
-import { Key, X } from 'lucide-react';
 
 const AppContent: React.FC = () => {
-  const { currentPath, apiStatus, openApiModal } = useApp();
-  const [bannerDismissed, setBannerDismissed] = React.useState(false);
+  const { currentPath } = useApp();
 
   // Router dispatcher
   const renderRoute = () => {
@@ -129,31 +126,6 @@ const AppContent: React.FC = () => {
       {/* Sticky Top Header */}
       <Header />
 
-      {/* Dismissible API Notification Banner if not configured yet */}
-      {!bannerDismissed && apiStatus && !apiStatus.configured && (
-        <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900/90 px-4 py-2 text-xs text-zinc-300">
-          <div className="flex items-center gap-2">
-            <Key className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
-            <span>
-              <strong>Demo Snapshot Active:</strong> To query TMDB’s full live database, connect your TMDB token.
-            </span>
-            <button
-              onClick={openApiModal}
-              className="ml-2 underline font-semibold text-white hover:text-zinc-200"
-            >
-              Connect API Key
-            </button>
-          </div>
-          <button
-            onClick={() => setBannerDismissed(true)}
-            aria-label="Dismiss banner"
-            className="text-zinc-400 hover:text-white"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-
       {/* Main Layout Area: Persistent Left Sidebar + Main Content */}
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
@@ -166,7 +138,6 @@ const AppContent: React.FC = () => {
 
       {/* Modals */}
       <TrailerModal />
-      <ApiSetupModal />
     </div>
   );
 };

@@ -6,23 +6,18 @@ import {
   ArrowLeft,
   ExternalLink,
   ShieldCheck,
-  CheckCircle2,
-  Tv2,
   Bookmark,
   BookmarkCheck,
   Star,
-  ChevronRight,
-  Clock,
-  Calendar,
   Layers,
   Sparkles,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { tmdbApi, getTMDBImageUrl, getBackdropFallback, getPosterFallback } from '../services/tmdbApi';
-import { TMDBMovie, TMDBTVShow, TMDBSeasonDetail, TMDBVideo } from '../types/tmdb';
+import { tmdbApi, getTMDBImageUrl, getBackdropFallback } from '../services/tmdbApi';
+import { TMDBMovie, TMDBTVShow, TMDBSeasonDetail } from '../types/tmdb';
 import { SUPPORTED_REGIONS } from '../data/curatedCompanies';
 import { MultiSourcePlayer } from '../components/player/MultiSourcePlayer';
-import { AVAILABLE_PLAYERS, PlayerSourceId } from '../services/videoPlayerService';
+import { AVAILABLE_PLAYERS } from '../services/videoPlayerService';
 
 interface WatchPageProps {
   mediaType: 'movie' | 'tv';
@@ -40,7 +35,6 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
     getSavedProgress,
   } = useApp();
 
-  // Read URL query parameters for initial season and episode
   const urlParams = new URLSearchParams(window.location.search);
   const initialSeason = parseInt(urlParams.get('season') || '1', 10);
   const initialEpisode = parseInt(urlParams.get('episode') || '1', 10);
@@ -67,7 +61,6 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
         if (!isCancelled) {
           setItem(data);
 
-          // If TV show, initialize season from saved history if available and not set in URL
           const savedProgress = getSavedProgress(mediaId, 'tv');
           if (mediaType === 'tv') {
             const hasUrlSeason = urlParams.has('season');
@@ -77,7 +70,6 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
             setEpisode(targetEpisode);
           }
 
-          // Record in watch history
           addToHistory({
             id: mediaId,
             media_type: mediaType,
@@ -129,7 +121,6 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
     };
   }, [mediaType, mediaId, season]);
 
-  // Update URL query parameters on season/episode change without reloading page
   const handleEpisodeChange = useCallback(
     (newEpisode: number) => {
       setEpisode(newEpisode);
@@ -154,8 +145,8 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
     return (
       <div className="flex min-h-[70vh] items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-red-600 border-t-transparent" />
-          <span className="text-xs text-neutral-400">Initializing streaming sources...</span>
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-700 border-t-rose-500" />
+          <span className="text-xs text-zinc-400">Loading stream options...</span>
         </div>
       </div>
     );
@@ -164,14 +155,14 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
   if (!item) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center p-6 text-center">
-        <Film className="h-12 w-12 text-neutral-600 mb-2" />
+        <Film className="h-12 w-12 text-zinc-600 mb-2" />
         <h2 className="text-xl font-bold text-white">Title Not Found</h2>
-        <p className="mt-1 text-xs text-neutral-400">
-          Unable to locate TMDB metadata for ID #{mediaId}.
+        <p className="mt-1 text-xs text-zinc-400">
+          Unable to locate metadata for ID #{mediaId}.
         </p>
         <button
           onClick={() => navigate('/')}
-          className="mt-4 flex items-center gap-2 rounded-xl bg-neutral-800 px-4 py-2 text-xs font-semibold text-white hover:bg-neutral-700"
+          className="mt-4 flex items-center gap-2 rounded-xl bg-zinc-800 px-4 py-2 text-xs font-semibold text-white hover:bg-zinc-700 transition"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Return Home</span>
@@ -193,22 +184,20 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
   const currentEpisodeObj = seasonDetails?.episodes?.find((ep) => ep.episode_number === episode);
   const totalEpisodesInSeason = seasonDetails?.episodes?.length || 24;
 
-  const savedProgress = getSavedProgress(mediaId, mediaType);
-
   return (
     <div className="mx-auto max-w-7xl px-3 py-6 sm:px-6 md:px-8 pb-24">
       {/* Top back navigation */}
       <div className="mb-4 flex items-center justify-between">
         <button
           onClick={() => navigate(`/${mediaType}/${mediaId}`)}
-          className="flex items-center gap-1.5 text-xs font-semibold text-neutral-400 hover:text-white transition"
+          className="flex items-center gap-1.5 text-xs font-medium text-zinc-400 hover:text-white transition"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Back to {title} Overview</span>
         </button>
 
-        <div className="flex items-center gap-2 text-xs text-neutral-400">
-          <span className="uppercase text-red-500 font-bold">{mediaType === 'tv' ? 'Series' : 'Movie'}</span>
+        <div className="flex items-center gap-2 text-xs text-zinc-400">
+          <span className="uppercase text-rose-500 font-bold">{mediaType === 'tv' ? 'Series' : 'Movie'}</span>
           {year && (
             <>
               <span aria-hidden="true">·</span>
@@ -242,16 +231,15 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
       />
 
       {/* Title & Metadata Sub-Header */}
-      <div className="mt-6 flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-neutral-800 pb-6">
+      <div className="mt-6 flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-zinc-800/80 pb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white font-['Oswald',sans-serif]">
+          <h1 className="text-xl sm:text-2xl font-bold text-white font-['Oswald',sans-serif]">
             {title}
           </h1>
 
-          {/* If TV Show, show episode title */}
           {mediaType === 'tv' && (
-            <div className="mt-1 flex items-center gap-2 text-sm text-neutral-300">
-              <span className="font-semibold text-red-400">
+            <div className="mt-1 flex items-center gap-2 text-xs sm:text-sm text-zinc-300">
+              <span className="font-semibold text-rose-400">
                 Season {season}, Episode {episode}
               </span>
               {currentEpisodeObj?.name && (
@@ -263,14 +251,14 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
             </div>
           )}
 
-          <p className="mt-2 text-xs sm:text-sm text-neutral-400 max-w-3xl leading-relaxed">
+          <p className="mt-2 text-xs sm:text-sm text-zinc-400 max-w-3xl leading-relaxed">
             {mediaType === 'tv' && currentEpisodeObj?.overview
               ? currentEpisodeObj.overview
               : item.overview}
           </p>
         </div>
 
-        {/* Watchlist toggle & quick actions */}
+        {/* Watchlist toggle */}
         <div className="flex items-center gap-2.5 shrink-0">
           <button
             onClick={() =>
@@ -284,13 +272,13 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
                 release_year: year,
               })
             }
-            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold border transition ${
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-medium border transition ${
               inWatchlist
-                ? 'bg-red-950/60 text-red-300 border-red-800/60'
-                : 'bg-neutral-900 text-white border-neutral-800 hover:bg-neutral-800'
+                ? 'bg-rose-950/40 text-rose-300 border-rose-800/50'
+                : 'bg-zinc-900 text-zinc-300 border-zinc-800 hover:bg-zinc-800 hover:text-white'
             }`}
           >
-            {inWatchlist ? <BookmarkCheck className="h-4 w-4 text-red-400" /> : <Bookmark className="h-4 w-4" />}
+            {inWatchlist ? <BookmarkCheck className="h-4 w-4 text-rose-400" /> : <Bookmark className="h-4 w-4" />}
             <span>{inWatchlist ? 'In Watchlist' : 'Add to Watchlist'}</span>
           </button>
         </div>
@@ -298,7 +286,7 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
 
       {/* TV Season & Episode Selector List */}
       {mediaType === 'tv' && tvShow && (
-        <section className="mt-8 rounded-xl border border-zinc-800/80 bg-[#121215] p-5 shadow-lg">
+        <section className="mt-8 rounded-2xl border border-zinc-800/80 bg-[#121215] p-5 shadow-lg">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/80 pb-4">
             <div>
               <div className="flex items-center gap-2">
@@ -348,14 +336,13 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
                     <button
                       key={ep.id || ep.episode_number}
                       onClick={() => handleEpisodeChange(ep.episode_number)}
-                      className={`group flex flex-col text-left rounded-lg border overflow-hidden p-3 transition ${
+                      className={`group flex flex-col text-left rounded-xl border overflow-hidden p-3 transition ${
                         isCurrent
-                          ? 'border-red-600 bg-red-950/20 shadow-md ring-1 ring-red-600'
+                          ? 'border-rose-600 bg-rose-950/20 shadow-md ring-1 ring-rose-600'
                           : 'border-zinc-800/80 bg-zinc-900/50 hover:border-zinc-700 hover:bg-zinc-800/50'
                       }`}
                     >
-                      {/* Thumbnail Still */}
-                      <div className="relative aspect-video w-full rounded-md overflow-hidden bg-zinc-950 border border-zinc-800/80 mb-2.5">
+                      <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-zinc-950 border border-zinc-800/80 mb-2.5">
                         <img
                           src={
                             ep.still_path
@@ -369,14 +356,13 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
                           EP {ep.episode_number}
                         </div>
                         {isCurrent && (
-                          <div className="absolute top-1.5 right-1.5 rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider">
+                          <div className="absolute top-1.5 right-1.5 rounded bg-rose-600 px-1.5 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider">
                             Now Playing
                           </div>
                         )}
                       </div>
 
-                      {/* Episode Title & Info */}
-                      <div className="text-xs font-semibold text-zinc-100 group-hover:text-red-400 transition truncate w-full">
+                      <div className="text-xs font-semibold text-zinc-100 group-hover:text-rose-400 transition truncate w-full">
                         {ep.episode_number}. {ep.name}
                       </div>
 
@@ -398,12 +384,12 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
         </section>
       )}
 
-      {/* Streaming Sources Architecture Explanation */}
-      <section className="mt-8 rounded-xl border border-zinc-800/80 bg-[#121215] p-5 shadow-lg">
+      {/* Streaming Sources Architecture */}
+      <section className="mt-8 rounded-2xl border border-zinc-800/80 bg-[#121215] p-5 shadow-lg">
         <div className="flex items-center gap-2 pb-3 border-b border-zinc-800/80">
-          <Sparkles className="h-4 w-4 text-red-500" />
+          <Sparkles className="h-4 w-4 text-rose-500" />
           <h2 className="text-xs font-bold uppercase tracking-wider text-white">
-            Supported Video Sources
+            Available Streaming Sources
           </h2>
         </div>
 
@@ -411,35 +397,30 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
           {AVAILABLE_PLAYERS.map((player) => (
             <div
               key={player.id}
-              className="rounded-lg border border-zinc-800/80 bg-zinc-900/40 p-4"
+              className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-4"
             >
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-bold text-white">{player.serverLabel}</span>
                 <span className="font-mono text-[10px] text-zinc-500">{player.baseUrl}</span>
               </div>
               <p className="text-xs text-zinc-400 leading-relaxed">{player.description}</p>
-              <div className="mt-3 flex items-center gap-2 text-[11px] text-zinc-500">
-                <span>Color: #{player.defaultColor}</span>
-                <span aria-hidden="true">·</span>
-                <span>{player.supportsProgressTracking ? 'Progress Sync: Yes' : 'Direct Embed'}</span>
-              </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Official Legal Streaming Providers via JustWatch & TMDB */}
-      <section className="mt-8 rounded-xl border border-zinc-800/80 bg-[#121215] p-5 shadow-lg">
+      {/* Official Legal Streaming Providers */}
+      <section className="mt-8 rounded-2xl border border-zinc-800/80 bg-[#121215] p-5 shadow-lg">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800/80 pb-4">
           <div>
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-emerald-400" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-white">
-                Official Licensed Providers (TMDB)
+                Official Licensed Providers
               </h2>
             </div>
             <p className="text-xs text-zinc-400">
-              Verified local options to watch {title} legally in your country.
+              Verified local options to watch {title} in your country.
             </p>
           </div>
 
@@ -460,7 +441,6 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
         </div>
 
         <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Subscription Streaming */}
           <div>
             <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-2">
               Stream (Subscription)
@@ -489,7 +469,6 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
             )}
           </div>
 
-          {/* Digital Rent */}
           <div>
             <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-2">
               Rent Online
@@ -518,7 +497,6 @@ export const WatchPage: React.FC<WatchPageProps> = ({ mediaType, mediaId }) => {
             )}
           </div>
 
-          {/* Digital Buy */}
           <div>
             <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-2">
               Buy Digital

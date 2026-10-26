@@ -51,7 +51,6 @@ export const MovieCard: React.FC<MovieCardProps> = ({
     if (trailer) {
       openTrailer(trailer.key, title, mediaType, item.id);
     } else {
-      // Navigate to details page where trailer can be fetched
       navigate(`/${mediaType}/${item.id}`);
     }
   };
@@ -72,11 +71,15 @@ export const MovieCard: React.FC<MovieCardProps> = ({
   return (
     <div
       onClick={handleCardClick}
-      className="group relative flex flex-col cursor-pointer transition-all duration-200 select-none"
+      className="group relative flex flex-col cursor-pointer select-none isolate z-0 hover:z-30 transition-[z-index] duration-0"
     >
-      {/* Poster Image Container */}
+      {/* 
+        Isolated Poster Container:
+        Only the hovered card scales up smoothly with hardware acceleration (transform-gpu).
+        Neighboring cards remain completely static and anchored in their grid positions.
+      */}
       <div
-        className={`relative w-full overflow-hidden rounded-xl bg-neutral-900 border border-neutral-800/80 shadow-md transition-all duration-300 group-hover:border-neutral-700 group-hover:shadow-xl group-hover:scale-[1.02] ${
+        className={`relative w-full overflow-hidden rounded-xl bg-zinc-900 border border-zinc-800/80 shadow-md transition-all duration-200 ease-out origin-center transform-gpu group-hover:scale-[1.04] group-hover:border-zinc-700 group-hover:shadow-2xl group-hover:shadow-black/80 ${
           aspectRatio === 'backdrop' ? 'aspect-video' : 'aspect-[2/3]'
         }`}
       >
@@ -84,18 +87,18 @@ export const MovieCard: React.FC<MovieCardProps> = ({
           src={posterSrc || getPosterFallback(title)}
           alt={title}
           loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
           onError={(e) => {
             (e.target as HTMLImageElement).src = getPosterFallback(title);
           }}
         />
 
-        {/* Subtle Dark Gradient Overlay on Hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex flex-col justify-between p-3">
-          {/* Top Row: Media Type & Watchlist Button */}
-          <div className="flex items-center justify-between">
-            <span className="flex items-center gap-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-neutral-300 backdrop-blur-md">
-              {isTv ? <Tv className="h-2.5 w-2.5 text-emerald-400" /> : <Film className="h-2.5 w-2.5 text-red-500" />}
+        {/* Subtle dark gradient overlay on hover (non-intrusive) */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100 flex flex-col justify-between p-3 pointer-events-none">
+          {/* Top Row: Media Type & Watchlist */}
+          <div className="flex items-center justify-between pointer-events-auto">
+            <span className="flex items-center gap-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-300 backdrop-blur-md">
+              {isTv ? <Tv className="h-2.5 w-2.5 text-emerald-400" /> : <Film className="h-2.5 w-2.5 text-rose-500" />}
               {isTv ? 'TV' : 'Movie'}
             </span>
 
@@ -103,48 +106,48 @@ export const MovieCard: React.FC<MovieCardProps> = ({
               onClick={handleWatchlistClick}
               title={inWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist'}
               aria-label={inWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist'}
-              className={`flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-md transition ${
+              className={`flex h-7 w-7 items-center justify-center rounded-full backdrop-blur-md transition ${
                 inWatchlist
-                  ? 'bg-red-600 text-white'
-                  : 'bg-black/60 text-white hover:bg-neutral-800'
+                  ? 'bg-rose-600 text-white'
+                  : 'bg-black/70 text-zinc-300 hover:bg-zinc-800 hover:text-white'
               }`}
             >
-              {inWatchlist ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
+              {inWatchlist ? <BookmarkCheck className="h-3.5 w-3.5" /> : <Bookmark className="h-3.5 w-3.5" />}
             </button>
           </div>
 
           {/* Center Play Button on Hover */}
-          <div className="flex justify-center">
+          <div className="flex justify-center pointer-events-auto">
             <button
               onClick={handleQuickTrailer}
               aria-label="Play Trailer"
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-red-600/90 text-white shadow-lg transition-transform hover:scale-110 hover:bg-red-600"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-600/95 text-white shadow-lg transition-transform hover:scale-110 hover:bg-rose-600 active:scale-95"
             >
-              <Play className="h-5 w-5 fill-white ml-0.5" />
+              <Play className="h-4 w-4 fill-white ml-0.5" />
             </button>
           </div>
 
           {/* Bottom overview peek */}
-          <div className="text-[11px] line-clamp-2 text-neutral-300 leading-tight">
+          <div className="text-[11px] line-clamp-2 text-zinc-300 leading-tight">
             {item.overview || 'Click for full cast, trailer & streaming providers.'}
           </div>
         </div>
 
-        {/* Rating Badge (Always visible in top right if rated) */}
+        {/* Rating Badge (Always visible in top right if rated, hides on hover) */}
         {rating && (
-          <div className="absolute top-2 right-2 flex items-center gap-1 rounded-md bg-black/75 px-1.5 py-0.5 text-[11px] font-semibold text-neutral-200 backdrop-blur-md group-hover:opacity-0 transition-opacity">
+          <div className="absolute top-2 right-2 flex items-center gap-1 rounded-md bg-black/80 px-1.5 py-0.5 text-[11px] font-semibold text-zinc-200 backdrop-blur-md group-hover:opacity-0 transition-opacity pointer-events-none">
             <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
             <span>{rating}</span>
           </div>
         )}
       </div>
 
-      {/* Title & Metadata (Clean typography, zero pill capsules) */}
+      {/* Title & Metadata */}
       <div className="mt-2 flex flex-col">
-        <h3 className="truncate text-sm font-semibold text-neutral-100 transition-colors group-hover:text-red-400">
+        <h3 className="truncate text-xs sm:text-sm font-semibold text-zinc-200 transition-colors group-hover:text-rose-400">
           {title}
         </h3>
-        <div className="flex items-center gap-1.5 text-xs text-neutral-400 mt-0.5">
+        <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 mt-0.5">
           {year && <span>{year}</span>}
           {year && (genreName || rating) && <span aria-hidden="true">·</span>}
           {genreName && <span>{genreName}</span>}

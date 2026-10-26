@@ -8,6 +8,7 @@ import { AppProvider, useApp } from './context/AppContext';
 import { Header } from './components/common/Header';
 import { Sidebar } from './components/common/Sidebar';
 import { TrailerModal } from './components/common/TrailerModal';
+import { SkeletonIntro } from './components/intro/SkeletonIntro';
 
 // Pages
 import { HomePage } from './pages/HomePage';
@@ -24,7 +25,7 @@ import { WatchPage } from './pages/WatchPage';
 import { SettingsPage } from './pages/SettingsPage';
 
 const AppContent: React.FC = () => {
-  const { currentPath } = useApp();
+  const { currentPath, isIntroActive, closeIntro } = useApp();
 
   // Router dispatcher
   const renderRoute = () => {
@@ -136,8 +137,9 @@ const AppContent: React.FC = () => {
         </main>
       </div>
 
-      {/* Modals */}
+      {/* Modals & Intro Animation */}
       <TrailerModal />
+      {isIntroActive && <SkeletonIntro onComplete={closeIntro} />}
     </div>
   );
 };

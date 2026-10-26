@@ -46,6 +46,10 @@ interface AppContextType {
   closeApiModal: () => void;
   apiStatus: APIStatus | null;
   refreshApiStatus: () => Promise<void>;
+
+  isIntroActive: boolean;
+  replayIntro: () => void;
+  closeIntro: () => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -272,6 +276,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const openApiModal = () => setIsApiModalOpen(true);
   const closeApiModal = () => setIsApiModalOpen(false);
 
+  // 3D Skeleton Intro Animation State (First visit check)
+  const [isIntroActive, setIsIntroActive] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('cinetube_intro_viewed') !== 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const replayIntro = useCallback(() => {
+    setIsIntroActive(true);
+  }, []);
+
+  const closeIntro = useCallback(() => {
+    setIsIntroActive(false);
+    try {
+      localStorage.setItem('cinetube_intro_viewed', 'true');
+    } catch {
+      // ignore
+    }
+  }, []);
+
   return (
     <AppContext.Provider
       value={{
@@ -308,6 +334,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         closeApiModal,
         apiStatus,
         refreshApiStatus,
+        isIntroActive,
+        replayIntro,
+        closeIntro,
       }}
     >
       {children}

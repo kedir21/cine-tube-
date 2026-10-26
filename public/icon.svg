@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18181b"/>
+      <stop offset="100%" stop-color="#09090b"/>
+    </linearGradient>
+    <linearGradient id="redGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#b91c1c"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+  <rect width="504" height="504" x="4" y="4" rx="108" fill="none" stroke="#27272a" stroke-width="4"/>
+
+  <!-- Subtle Ambient Glow -->
+  <circle cx="256" cy="256" r="140" fill="#dc2626" opacity="0.12" filter="url(#glow)"/>
+
+  <!-- Tube/Screen Outline -->
+  <rect x="76" y="106" width="360" height="260" rx="44" fill="#09090b" stroke="url(#redGrad)" stroke-width="12"/>
+
+  <!-- Film Reel Perforations on Top/Bottom -->
+  <rect x="116" y="124" width="18" height="12" rx="3" fill="#3f3f46"/>
+  <rect x="156" y="124" width="18" height="12" rx="3" fill="#3f3f46"/>
+  <rect x="196" y="124" width="18" height="12" rx="3" fill="#3f3f46"/>
+  <rect x="236" y="124" width="18" height="12" rx="3" fill="#3f3f46"/>
+  <rect x="276" y="124" width="18" height="12" rx="3" fill="#3f3f46"/>
+  <rect x="316" y="124" width="18" height="12" rx="3" fill="#3f3f46"/>
+  <rect x="356" y="124" width="18" height="12" rx="3" fill="#3f3f46"/>
+
+  <rect x="116" y="336" width="18" height="12" rx="3" fill="#3f3f46"/>
+  <rect x="156" y="336" width="18" height="12" rx="3" fill="#3f3f46"/>
+  <rect x="196" y="336" width="18" height="12" rx="3" fill="#3f3f46"/>
+  <rect x="236" y="336" width="18" height="12" rx="3" fill="#3f3f46"/>
+  <rect x="276" y="336" width="18" height="12" rx="3" fill="#3f3f46"/>
+  <rect x="316" y="336" width="18" height="12" rx="3" fill="#3f3f46"/>
+  <rect x="356" y="336" width="18" height="12" rx="3" fill="#3f3f46"/>
+
+  <!-- Dynamic Play Button / Cinema Symbol -->
+  <polygon points="216,182 336,256 216,330" fill="url(#redGrad)" filter="url(#glow)"/>
+
+  <!-- Base Stand / TV feet -->
+  <path d="M196 392 L256 376 L316 392" stroke="#3f3f46" stroke-width="8" stroke-linecap="round"/>
+</svg>

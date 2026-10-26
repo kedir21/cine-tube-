@@ -17,6 +17,7 @@ import { useApp } from '../context/AppContext';
 import { tmdbApi } from '../services/tmdbApi';
 import { TMDB_CONFIG } from '../config/tmdb';
 import { SUPPORTED_REGIONS } from '../data/curatedCompanies';
+import { PWAInstallButton } from '../components/common/PWAInstallButton';
 
 export const SettingsPage: React.FC = () => {
   const {
@@ -32,6 +33,7 @@ export const SettingsPage: React.FC = () => {
     setPlayerAccentColor,
     clearHistory,
     history,
+    replayIntro,
   } = useApp();
 
   const [tokenInput, setTokenInput] = useState('');
@@ -326,6 +328,48 @@ export const SettingsPage: React.FC = () => {
               className="rounded-lg border border-zinc-800 bg-zinc-900 px-3.5 py-1.5 text-xs font-medium text-zinc-300 hover:text-red-400 hover:bg-zinc-800/60 disabled:opacity-40 transition"
             >
               Clear Watch History
+            </button>
+          </div>
+        </div>
+
+        {/* Progressive Web App (PWA) Installation */}
+        <div className="rounded-xl border border-zinc-800/80 bg-[#121215] p-5 shadow-lg">
+          <div className="flex items-center gap-2.5 pb-3 border-b border-zinc-800/80">
+            <Sparkles className="h-4 w-4 text-emerald-400" />
+            <h2 className="text-sm font-bold uppercase tracking-wider text-white">
+              Progressive Web App &amp; Offline Experience
+            </h2>
+          </div>
+
+          <p className="mt-3 text-xs text-zinc-400 mb-4">
+            Install CineTube as a native standalone app on your desktop, macOS, Android, or iOS device with full offline caching and instant launch.
+          </p>
+
+          <PWAInstallButton variant="settings" />
+        </div>
+
+        {/* 3D Cinematic Skeleton Intro */}
+        <div className="rounded-xl border border-zinc-800/80 bg-[#121215] p-5 shadow-lg">
+          <div className="flex items-center gap-2.5 pb-3 border-b border-zinc-800/80">
+            <Film className="h-4 w-4 text-red-500" />
+            <h2 className="text-sm font-bold uppercase tracking-wider text-white">
+              Cinematic 3D Intro Animation
+            </h2>
+          </div>
+
+          <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div className="text-xs font-semibold text-white">Procedural 3D Skeleton Sequence</div>
+              <div className="text-xs text-zinc-400 mt-0.5">
+                Experience the real-time Three.js cinematic skull assembly and dynamic lighting reveal.
+              </div>
+            </div>
+            <button
+              onClick={replayIntro}
+              className="flex items-center gap-2 rounded-lg bg-red-600/90 hover:bg-red-600 px-4 py-2 text-xs font-semibold text-white transition shadow-sm shrink-0"
+            >
+              <Play className="h-3.5 w-3.5 fill-white" />
+              <span>Replay 3D Intro</span>
             </button>
           </div>
         </div>

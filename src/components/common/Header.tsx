@@ -15,6 +15,7 @@ import {
 import { useApp } from '../../context/AppContext';
 import { tmdbApi, getTMDBImageUrl } from '../../services/tmdbApi';
 import { SUPPORTED_REGIONS } from '../../data/curatedCompanies';
+import { PWAInstallButton } from './PWAInstallButton';
 
 export const Header: React.FC = () => {
   const {
@@ -135,13 +136,13 @@ export const Header: React.FC = () => {
           onClick={() => navigate('/')}
           className="flex items-center gap-2 transition hover:opacity-95 focus-visible:outline-none"
         >
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-rose-600 text-white shadow-md shadow-rose-950/50">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-red-600 text-white shadow-md shadow-red-950/50">
             <Film className="h-4 w-4" />
           </div>
           <div className="flex items-baseline tracking-tight">
             <span className="font-bold text-sm tracking-wide text-zinc-100">CINE</span>
-            <span className="rounded bg-rose-600/90 px-1 py-0.5 text-[9px] font-bold text-white uppercase ml-1 tracking-wider">
-              STREAM
+            <span className="rounded bg-red-600 px-1 py-0.5 text-[9px] font-bold text-white uppercase ml-1 tracking-wider">
+              TUBE
             </span>
           </div>
         </button>
@@ -337,8 +338,11 @@ export const Header: React.FC = () => {
         </div>
       )}
 
-      {/* Right Section: Mobile Search, Watchlist, Region Selector & Account Profile */}
+      {/* Right Section: Mobile Search, PWA Install, Watchlist, Region Selector & Account Profile */}
       <div className="flex items-center gap-1.5 md:gap-2">
+        {/* PWA Install Button (Chromium / iOS) */}
+        <PWAInstallButton variant="nav" />
+
         {/* Mobile Search Toggle */}
         <button
           onClick={() => {
